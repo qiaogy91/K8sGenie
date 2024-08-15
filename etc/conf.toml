@@ -1,0 +1,27 @@
+[http]
+addr = "127.0.0.1"
+port = 8081
+read_timeout = 60
+write_timeout = 60
+
+[grpc]
+addr = "127.0.0.1"
+port = 18081
+token = "redhatxxoo"
+
+[mysql]
+addr = "127.0.0.1"
+port = 3306
+database = "K8sGenie"
+username = "root"
+password = "redhat"
+max_open_conn = 100
+max_idle_conn = 30
+max_life_time = 10
+max_idle_time = 3
+
+[rancher]
+addr = "127.0.0.1"
+port = 18080
+token = "redhatxxoo"
+kube_file = "/Users/qiaogy/.kube/config"
