@@ -45,4 +45,3 @@ message Spec {
     // @gotags: json:"project_id"
     string project_id = 7;
 }
-

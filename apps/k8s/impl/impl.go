@@ -10,6 +10,7 @@ import (
 	"gorm.io/gorm"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
+	"k8s.io/client-go/tools/clientcmd/api"
 )
 
 var _ k8s.Service = &Impl{}
@@ -18,7 +19,7 @@ type Impl struct {
 	db *gorm.DB
 	k8s.UnimplementedRpcServer
 	rc resourcer.RpcClient
-	kc *kubernetes.Clientset
+	cs map[string]*kubernetes.Clientset
 }
 
 func (i *Impl) Name() string {
@@ -27,22 +28,41 @@ func (i *Impl) Name() string {
 
 func (i *Impl) Init() error {
 	// db
-	i.db = conf.C().GetMysqlPool().Debug()
-
-	// k8s client
-	restConf, err := clientcmd.BuildConfigFromFlags("", conf.C().Rancher.KubeFile)
-	if err != nil {
-		panic(err)
-	}
-	clientSet, err := kubernetes.NewForConfig(restConf)
-	if err != nil {
-		panic(err)
-	}
-
-	i.kc = clientSet
+	i.db = conf.C().GetMysqlPool()
 
 	// rancher client
 	i.rc = resourceClient.NewClient(conf.C().RancherAddr(), conf.C().Rancher.Token)
+
+	// kubeConf 文件
+	apiConf, err := clientcmd.LoadFromFile(conf.C().Rancher.KubeFile)
+	if err != nil {
+		panic(err)
+	}
+
+	// 将各个集群的名称、以及对应的clientSet 做成Map
+	clientMap := make(map[string]*kubernetes.Clientset)
+	for name, _ := range apiConf.Contexts {
+		// 获取restConf
+		restConf, err := clientcmd.BuildConfigFromKubeconfigGetter("", func() (*api.Config, error) {
+			apiConf.CurrentContext = name  // apiConf context 切换
+			return apiConf.DeepCopy(), nil // 返回切换后的 apiConf 副本
+		})
+
+		if err != nil {
+			panic(err)
+		}
+
+		// 获取clientSet
+		client, err := kubernetes.NewForConfig(restConf)
+		if err != nil {
+			panic(err)
+		}
+		// 放入map
+		clientMap[name] = client
+	}
+
+	i.cs = clientMap
+
 	return nil
 }
 

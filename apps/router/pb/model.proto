@@ -1,0 +1,27 @@
+syntax = "proto3";
+package K8sGenie.router;
+option go_package = "gitee.com/qiaogy91/K8sGenie/apps/router";
+
+enum TYPE {
+    TYPE_UNSPECIFIED = 0;
+    TYPE_CLUSTER_SCOPE = 1;
+    TYPE_PROJECT_SCOPE = 2;
+}
+message Meta{
+    int64 id = 1;
+    int64 created_at = 2;
+    int64 updated_at = 3;
+}
+
+message Spec {
+    TYPE notify_type = 1;
+    string robot_name = 2;
+    string project_id = 3;
+    string webhook_url = 4;
+    string webhook_token = 5;
+}
+
+message Router {
+    Meta meta = 1;
+    Spec spec = 2;
+}

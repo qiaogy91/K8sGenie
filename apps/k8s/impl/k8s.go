@@ -2,25 +2,28 @@ package impl
 
 import (
 	"context"
+	"errors"
 	"gitee.com/qiaogy91/InfraGenie/apps/resourcer"
 	"gitee.com/qiaogy91/K8sGenie/apps/k8s"
 	"gitee.com/qiaogy91/K8sGenie/common"
 	cv1 "k8s.io/api/core/v1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/client-go/kubernetes"
+	"time"
 )
 
 func (i *Impl) TableCreate(ctx context.Context, empty *k8s.Empty) (*k8s.Empty, error) {
-	if err := i.db.WithContext(ctx).AutoMigrate(&resourcer.Rancher{}, &k8s.WorkLoad{}); err != nil {
+	if err := i.db.WithContext(ctx).AutoMigrate(&resourcer.Project{}, &k8s.WorkLoad{}); err != nil {
 		return nil, err
 	}
 	return nil, nil
 }
 
-// RancherResourceSync 同步所有项目信息到DB
-func (i *Impl) RancherResourceSync(ctx context.Context) error {
+// SyncRancherProject 同步所有项目信息到DB
+func (i *Impl) SyncRancherProject(ctx context.Context) error {
 	// 每次都是重新获取数据，确保数据与当前完全一致
-	i.db.Exec("TRUNCATE TABLE ranchers")
-	i.db.Exec("ALTER TABLE ranchers AUTO_INCREMENT = 1")
+	i.db.Exec("TRUNCATE TABLE projects")
+	i.db.Exec("ALTER TABLE projects AUTO_INCREMENT = 1")
 
 	stream, err := i.rc.RancherResourceSync(ctx, nil)
 	if err != nil {
@@ -41,20 +44,32 @@ func (i *Impl) RancherResourceSync(ctx context.Context) error {
 	return nil
 }
 
-// DescRancherProject 项目查询
-func (i *Impl) DescRancherProject(ctx context.Context, pid string) (*resourcer.Rancher, error) {
-	ins := &resourcer.Rancher{}
-	if err := i.db.WithContext(ctx).Model(&resourcer.Rancher{}).Where("project_id = ?", pid).First(ins).Error; err != nil {
-		return nil, err
+// SyncK8SWorkload 将Kubernetes 数据同步到DB
+// 1. 内部调用 handler 				数据同步入口，来负责上下文切换
+// 2. 内部调用 handlerDeployment   	处理dep， 而后记录进数据库
+// 3. 内部调用 handlerDaemonSet 		处理ds，  而后记录进数据库
+// 4. 内部调用 handlerStatefulSet  	处理sts， 而后记录进数据库
+func (i *Impl) SyncK8SWorkload(empty *k8s.Empty, stream k8s.Rpc_SyncK8SWorkloadServer) error {
+	// 数据清洗
+	ctx := context.Background()
+	sTime := time.Now().Truncate(24 * time.Hour)
+	eTime := sTime.Add(24 * time.Hour)
+	if err := i.db.WithContext(ctx).Where("created_at >= ? AND created_at < ?", sTime.Unix(), eTime.Unix()).Delete(&k8s.WorkLoad{}).Error; err != nil {
+		return err
 	}
-	return ins, nil
+
+	for cluster, client := range i.cs {
+		common.L().Info().Msgf("=============== %s =======================", cluster)
+		if err := i.handler(ctx, client, stream); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
-// K8SResourceSync 同步所有容器信息到DB
-func (i *Impl) K8SResourceSync(empty *k8s.Empty, stream k8s.Rpc_K8SResourceSyncServer) error {
+func (i *Impl) handler(ctx context.Context, c *kubernetes.Clientset, stream k8s.Rpc_SyncK8SWorkloadServer) error {
 	// 获取所有namespace
-	ctx := context.Background()
-	nsSet, err := i.kc.CoreV1().Namespaces().List(ctx, v1.ListOptions{})
+	nsSet, err := c.CoreV1().Namespaces().List(ctx, v1.ListOptions{})
 	if err != nil {
 		return err
 	}
@@ -68,28 +83,33 @@ func (i *Impl) K8SResourceSync(empty *k8s.Empty, stream k8s.Rpc_K8SResourceSyncS
 		}
 
 		// 2. 根据注解信息查找项目
-		pro, err := i.DescRancherProject(ctx, pid)
+		pro, err := i.DescRancherProject(ctx, &k8s.DescRancherProjectReq{ProjectID: pid, DescType: k8s.FromProjectID})
 		if err != nil {
 			common.L().Info().Msgf("K8SResourceSync namespace has no projectId, %s , %v", ns.Name, err)
 			continue
 		}
 
-		// - 处理deployment
-		if err := i.handlerDeployment(ctx, pro, ns, stream); err != nil {
+		// - 处理 deployment
+		if err := i.handlerDeployment(ctx, c, pro, ns, stream); err != nil {
 			return err
 		}
 
-		// 4. 插入数据 daemonSet
-		if err := i.handlerDaemonSet(ctx, pro, ns, stream); err != nil {
+		// - 处理 daemonSet
+		if err := i.handlerDaemonSet(ctx, c, pro, ns, stream); err != nil {
+			return err
+		}
+
+		// - 处理 statefulSet
+		if err := i.handlerStatefulSet(ctx, c, pro, ns, stream); err != nil {
 			return err
 		}
 	}
 	return nil
 }
 
-func (i *Impl) handlerDeployment(ctx context.Context, pro *resourcer.Rancher, ns cv1.Namespace, stream k8s.Rpc_K8SResourceSyncServer) error {
+func (i *Impl) handlerDeployment(ctx context.Context, c *kubernetes.Clientset, pro *resourcer.Project, ns cv1.Namespace, stream k8s.Rpc_SyncK8SWorkloadServer) error {
 	// 3. 如果存在，则遍历该名称空间下所有dep，进行统计计算
-	deps, err := i.kc.AppsV1().Deployments(ns.Name).List(ctx, v1.ListOptions{})
+	deps, err := c.AppsV1().Deployments(ns.Name).List(ctx, v1.ListOptions{})
 	if err != nil {
 		common.L().Info().Msgf("handlerDeployment list deployment failed %v", err)
 		return err
@@ -115,6 +135,10 @@ func (i *Impl) handlerDeployment(ctx context.Context, pro *resourcer.Rancher, ns
 			},
 		}
 
+		if err := i.db.WithContext(ctx).Model(&k8s.WorkLoad{}).Create(ins).Error; err != nil {
+			return err
+		}
+
 		if err := stream.Send(ins); err != nil {
 			return err
 		}
@@ -122,16 +146,16 @@ func (i *Impl) handlerDeployment(ctx context.Context, pro *resourcer.Rancher, ns
 	return nil
 }
 
-func (i *Impl) handlerDaemonSet(ctx context.Context, pro *resourcer.Rancher, ns cv1.Namespace, stream k8s.Rpc_K8SResourceSyncServer) error {
+func (i *Impl) handlerDaemonSet(ctx context.Context, c *kubernetes.Clientset, pro *resourcer.Project, ns cv1.Namespace, stream k8s.Rpc_SyncK8SWorkloadServer) error {
 	// 获取节点数量
-	nodes, err := i.kc.CoreV1().Nodes().List(ctx, v1.ListOptions{})
+	nodes, err := c.CoreV1().Nodes().List(ctx, v1.ListOptions{})
 	if err != nil {
 		common.L().Info().Msgf("handlerDaemonSet list nodes failed %v", err)
 		return err
 	}
 
 	// 3. 如果存在，则遍历该名称空间下所有dep，进行统计计算
-	ds, err := i.kc.AppsV1().DaemonSets(ns.Name).List(ctx, v1.ListOptions{})
+	ds, err := c.AppsV1().DaemonSets(ns.Name).List(ctx, v1.ListOptions{})
 	if err != nil {
 		common.L().Info().Msgf("handlerDaemonSet list ds failed %v", err)
 		return err
@@ -157,6 +181,10 @@ func (i *Impl) handlerDaemonSet(ctx context.Context, pro *resourcer.Rancher, ns 
 			},
 		}
 
+		if err := i.db.WithContext(ctx).Model(&k8s.WorkLoad{}).Create(ins).Error; err != nil {
+			return err
+		}
+
 		if err := stream.Send(ins); err != nil {
 			return err
 		}
@@ -164,4 +192,81 @@ func (i *Impl) handlerDaemonSet(ctx context.Context, pro *resourcer.Rancher, ns 
 	return nil
 }
 
-// todo handler for sts, handler for job cronjob
+func (i *Impl) handlerStatefulSet(ctx context.Context, c *kubernetes.Clientset, pro *resourcer.Project, ns cv1.Namespace, stream k8s.Rpc_SyncK8SWorkloadServer) error {
+	// 1. 如果存在，则遍历该名称空间下所有sts，进行统计计算
+	sts, err := c.AppsV1().StatefulSets(ns.Name).List(ctx, v1.ListOptions{})
+	if err != nil {
+		common.L().Info().Msgf("handlerDaemonSet list ds failed %v", err)
+		return err
+	}
+
+	// 2. 插入数据 deployment
+	for _, st := range sts.Items {
+		var cpuTotal int64
+		var ramTotal int64
+		for _, c := range st.Spec.Template.Spec.Containers {
+			cpuTotal += c.Resources.Limits.Cpu().Value()
+			ramTotal += c.Resources.Limits.Memory().Value()
+		}
+		ins := &k8s.WorkLoad{
+			Spec: &k8s.Spec{
+				Type:      k8s.Type_TYPE_STATEFUL_SET,
+				Namespace: st.Namespace,
+				Name:      st.Name,
+				Replicas:  *st.Spec.Replicas,
+				Ram:       ramTotal / 1024 / 1024 / 1024,
+				Cpu:       cpuTotal,
+				ProjectId: pro.Spec.ProjectId,
+			},
+		}
+
+		if err := i.db.WithContext(ctx).Model(&k8s.WorkLoad{}).Create(ins).Error; err != nil {
+			return err
+		}
+
+		if err := stream.Send(ins); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+// DescRancherProject 根据名称空间，反查项目
+func (i *Impl) DescRancherProject(ctx context.Context, req *k8s.DescRancherProjectReq) (*resourcer.Project, error) {
+	switch req.DescType {
+	case k8s.FromProjectID:
+		ins := &resourcer.Project{}
+		if err := i.db.WithContext(ctx).Model(&resourcer.Project{}).Where("project_id = ?", req.ProjectID).First(ins).Error; err != nil {
+			return nil, err
+		}
+		return ins, nil
+
+	case k8s.FromClusterAndNamespace:
+		// 获取集群客户端
+		c, ok := i.cs[req.ClusterName]
+		if !ok {
+			return nil, errors.New("no such cluster")
+		}
+
+		// 找到名称空间对象
+		ns, err := c.CoreV1().Namespaces().Get(ctx, req.Namespace, v1.GetOptions{})
+		if err != nil {
+			return nil, err
+		}
+		// 获取注解
+		pid, ok := ns.Annotations["field.cattle.io/projectId"]
+		if !ok {
+			return nil, errors.New("not belong to any project")
+		}
+
+		// 查找Project
+		ins := &resourcer.Project{}
+		if err := i.db.WithContext(ctx).Model(&resourcer.Project{}).Where("project_id = ?", pid).First(ins).Error; err != nil {
+			return nil, err
+		}
+		return ins, nil
+	}
+
+	return nil, errors.New("search type err")
+
+}

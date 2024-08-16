@@ -28,27 +28,33 @@ func init() {
 	c = ioc.GetController(k8s.AppName).(k8s.Service)
 }
 
-func TestImpl_RancherCreateTable(t *testing.T) {
+func TestImpl_TableCreate(t *testing.T) {
 	if _, err := c.TableCreate(ctx, nil); err != nil {
-		t.Fatal(err)
-	}
-}
-func TestImpl_RancherResourceSync(t *testing.T) {
-	if err := c.RancherResourceSync(ctx); err != nil {
 		t.Fatal(err)
 	}
 }
 
 func TestImpl_DescRancherProject(t *testing.T) {
-	ins, err := c.DescRancherProject(ctx, "c-m-zcjwcxrr:p-zm2vx")
+	req := &k8s.DescRancherProjectReq{
+		DescType:    k8s.FromProjectID,
+		ProjectID:   "c-m-zcjwcxrr:p-zm2vx",
+		ClusterName: "itcp-k8s-uat",
+		Namespace:   "aj-uat",
+	}
+	ins, err := c.DescRancherProject(ctx, req)
 	if err != nil {
 		t.Fatal(err)
 	}
 	t.Logf("%+v", ins)
 }
 
-func TestImpl_K8SResourceSync(t *testing.T) {
-	if err := c.K8SResourceSync(nil, &Stream{}); err != nil {
+func TestImpl_SyncRancherProject(t *testing.T) {
+	if err := c.SyncRancherProject(ctx); err != nil {
+		t.Fatal(err)
+	}
+}
+func TestImpl_SyncK8SWorkload(t *testing.T) {
+	if err := c.SyncK8SWorkload(nil, &Stream{}); err != nil {
 		t.Fatal(err)
 	}
 }

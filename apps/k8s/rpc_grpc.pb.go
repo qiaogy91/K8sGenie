@@ -20,7 +20,7 @@ const _ = grpc.SupportPackageIsVersion7
 
 const (
 	Rpc_TableCreate_FullMethodName     = "/K8sGenie.k8s.Rpc/TableCreate"
-	Rpc_K8SResourceSync_FullMethodName = "/K8sGenie.k8s.Rpc/K8sResourceSync"
+	Rpc_SyncK8SWorkload_FullMethodName = "/K8sGenie.k8s.Rpc/SyncK8sWorkload"
 )
 
 // RpcClient is the client API for Rpc service.
@@ -28,7 +28,7 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type RpcClient interface {
 	TableCreate(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*Empty, error)
-	K8SResourceSync(ctx context.Context, in *Empty, opts ...grpc.CallOption) (Rpc_K8SResourceSyncClient, error)
+	SyncK8SWorkload(ctx context.Context, in *Empty, opts ...grpc.CallOption) (Rpc_SyncK8SWorkloadClient, error)
 }
 
 type rpcClient struct {
@@ -48,12 +48,12 @@ func (c *rpcClient) TableCreate(ctx context.Context, in *Empty, opts ...grpc.Cal
 	return out, nil
 }
 
-func (c *rpcClient) K8SResourceSync(ctx context.Context, in *Empty, opts ...grpc.CallOption) (Rpc_K8SResourceSyncClient, error) {
-	stream, err := c.cc.NewStream(ctx, &Rpc_ServiceDesc.Streams[0], Rpc_K8SResourceSync_FullMethodName, opts...)
+func (c *rpcClient) SyncK8SWorkload(ctx context.Context, in *Empty, opts ...grpc.CallOption) (Rpc_SyncK8SWorkloadClient, error) {
+	stream, err := c.cc.NewStream(ctx, &Rpc_ServiceDesc.Streams[0], Rpc_SyncK8SWorkload_FullMethodName, opts...)
 	if err != nil {
 		return nil, err
 	}
-	x := &rpcK8SResourceSyncClient{stream}
+	x := &rpcSyncK8SWorkloadClient{stream}
 	if err := x.ClientStream.SendMsg(in); err != nil {
 		return nil, err
 	}
@@ -63,16 +63,16 @@ func (c *rpcClient) K8SResourceSync(ctx context.Context, in *Empty, opts ...grpc
 	return x, nil
 }
 
-type Rpc_K8SResourceSyncClient interface {
+type Rpc_SyncK8SWorkloadClient interface {
 	Recv() (*WorkLoad, error)
 	grpc.ClientStream
 }
 
-type rpcK8SResourceSyncClient struct {
+type rpcSyncK8SWorkloadClient struct {
 	grpc.ClientStream
 }
 
-func (x *rpcK8SResourceSyncClient) Recv() (*WorkLoad, error) {
+func (x *rpcSyncK8SWorkloadClient) Recv() (*WorkLoad, error) {
 	m := new(WorkLoad)
 	if err := x.ClientStream.RecvMsg(m); err != nil {
 		return nil, err
@@ -85,7 +85,7 @@ func (x *rpcK8SResourceSyncClient) Recv() (*WorkLoad, error) {
 // for forward compatibility
 type RpcServer interface {
 	TableCreate(context.Context, *Empty) (*Empty, error)
-	K8SResourceSync(*Empty, Rpc_K8SResourceSyncServer) error
+	SyncK8SWorkload(*Empty, Rpc_SyncK8SWorkloadServer) error
 	mustEmbedUnimplementedRpcServer()
 }
 
@@ -96,8 +96,8 @@ type UnimplementedRpcServer struct {
 func (UnimplementedRpcServer) TableCreate(context.Context, *Empty) (*Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method TableCreate not implemented")
 }
-func (UnimplementedRpcServer) K8SResourceSync(*Empty, Rpc_K8SResourceSyncServer) error {
-	return status.Errorf(codes.Unimplemented, "method K8SResourceSync not implemented")
+func (UnimplementedRpcServer) SyncK8SWorkload(*Empty, Rpc_SyncK8SWorkloadServer) error {
+	return status.Errorf(codes.Unimplemented, "method SyncK8SWorkload not implemented")
 }
 func (UnimplementedRpcServer) mustEmbedUnimplementedRpcServer() {}
 
@@ -130,24 +130,24 @@ func _Rpc_TableCreate_Handler(srv interface{}, ctx context.Context, dec func(int
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Rpc_K8SResourceSync_Handler(srv interface{}, stream grpc.ServerStream) error {
+func _Rpc_SyncK8SWorkload_Handler(srv interface{}, stream grpc.ServerStream) error {
 	m := new(Empty)
 	if err := stream.RecvMsg(m); err != nil {
 		return err
 	}
-	return srv.(RpcServer).K8SResourceSync(m, &rpcK8SResourceSyncServer{stream})
+	return srv.(RpcServer).SyncK8SWorkload(m, &rpcSyncK8SWorkloadServer{stream})
 }
 
-type Rpc_K8SResourceSyncServer interface {
+type Rpc_SyncK8SWorkloadServer interface {
 	Send(*WorkLoad) error
 	grpc.ServerStream
 }
 
-type rpcK8SResourceSyncServer struct {
+type rpcSyncK8SWorkloadServer struct {
 	grpc.ServerStream
 }
 
-func (x *rpcK8SResourceSyncServer) Send(m *WorkLoad) error {
+func (x *rpcSyncK8SWorkloadServer) Send(m *WorkLoad) error {
 	return x.ServerStream.SendMsg(m)
 }
 
@@ -165,8 +165,8 @@ var Rpc_ServiceDesc = grpc.ServiceDesc{
 	},
 	Streams: []grpc.StreamDesc{
 		{
-			StreamName:    "K8sResourceSync",
-			Handler:       _Rpc_K8SResourceSync_Handler,
+			StreamName:    "SyncK8sWorkload",
+			Handler:       _Rpc_SyncK8SWorkload_Handler,
 			ServerStreams: true,
 		},
 	},

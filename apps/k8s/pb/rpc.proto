@@ -8,5 +8,5 @@ option go_package = "gitee.com/qiaogy91/K8sGenie/apps/k8s";
 
 service Rpc {
     rpc TableCreate(Empty)returns (Empty);
-    rpc K8sResourceSync(Empty)returns (stream WorkLoad);
+    rpc SyncK8sWorkload(Empty)returns (stream WorkLoad);
 }

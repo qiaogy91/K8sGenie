@@ -6,6 +6,7 @@ import (
 	"gitee.com/qiaogy91/K8sGenie/common"
 	"gitee.com/qiaogy91/K8sGenie/conf"
 	"gitee.com/qiaogy91/K8sGenie/ioc"
+	"github.com/emicklei/go-restful/v3"
 	"net/http"
 	"time"
 )

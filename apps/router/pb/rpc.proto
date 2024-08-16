@@ -1,0 +1,12 @@
+syntax = "proto3";
+package K8sGenie.router;
+option go_package = "gitee.com/qiaogy91/K8sGenie/apps/router";
+
+
+
+service Rpc {
+    // 1. 维护告警路由表 CURD
+
+
+    // 1. 发送告警（根据告警信息，能够判断应该发往哪个群组的 webhook，并发送）
+}
