@@ -1,0 +1,44 @@
+syntax = "proto3";
+
+package K8sGenie.resourcer;
+
+option go_package = "gitee.com/qiaogy91/K8sGenie/apps/rancher";
+
+
+message Empty {}
+
+message Project {
+    // @gotags: json:"meta" gorm:"embedded"
+    Meta meta = 1;
+    // @gotags: json:"spec" gorm:"embedded"
+    Spec spec = 2;
+}
+
+message Meta {
+    int64 id = 1;
+    // @gotags: gorm:"autoCreateTime"
+    int64 created_at = 2;
+    // @gotags: gorm:"autoUpdateTime"
+    int64 updated_at = 3;
+}
+
+message Spec {
+    // @gotags: json:"cluster_name"
+    string cluster_name = 2;
+    // @gotags: json:"project_id"
+    string project_id = 3;
+    // @gotags: json:"project_code"
+    string project_code = 4;
+    // @gotags: json:"project_desc"
+    string project_desc = 5;
+    // @gotags: json:"project_line"
+    string project_line = 6;
+    // @gotags: json:"users" gorm:"json"
+    string user = 7;
+}
+
+
+message RancherSet {
+    int64 total = 1;
+    repeated Project items = 2;
+}

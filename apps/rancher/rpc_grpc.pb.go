@@ -2,9 +2,9 @@
 // versions:
 // - protoc-gen-go-grpc v1.3.0
 // - protoc             v5.27.1
-// source: apps/k8s/pb/rpc.proto
+// source: apps/rancher/pb/rpc.proto
 
-package k8s
+package rancher
 
 import (
 	context "context"
@@ -19,16 +19,17 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	Rpc_CreateTable_FullMethodName     = "/K8sGenie.k8s.Rpc/CreateTable"
-	Rpc_SyncK8SWorkload_FullMethodName = "/K8sGenie.k8s.Rpc/SyncK8sWorkload"
+	Rpc_CreateTable_FullMethodName        = "/K8sGenie.resourcer.Rpc/CreateTable"
+	Rpc_SyncRancherProject_FullMethodName = "/K8sGenie.resourcer.Rpc/SyncRancherProject"
 )
 
 // RpcClient is the client API for Rpc service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type RpcClient interface {
+	// for rancher
 	CreateTable(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*Empty, error)
-	SyncK8SWorkload(ctx context.Context, in *Empty, opts ...grpc.CallOption) (Rpc_SyncK8SWorkloadClient, error)
+	SyncRancherProject(ctx context.Context, in *Empty, opts ...grpc.CallOption) (Rpc_SyncRancherProjectClient, error)
 }
 
 type rpcClient struct {
@@ -48,12 +49,12 @@ func (c *rpcClient) CreateTable(ctx context.Context, in *Empty, opts ...grpc.Cal
 	return out, nil
 }
 
-func (c *rpcClient) SyncK8SWorkload(ctx context.Context, in *Empty, opts ...grpc.CallOption) (Rpc_SyncK8SWorkloadClient, error) {
-	stream, err := c.cc.NewStream(ctx, &Rpc_ServiceDesc.Streams[0], Rpc_SyncK8SWorkload_FullMethodName, opts...)
+func (c *rpcClient) SyncRancherProject(ctx context.Context, in *Empty, opts ...grpc.CallOption) (Rpc_SyncRancherProjectClient, error) {
+	stream, err := c.cc.NewStream(ctx, &Rpc_ServiceDesc.Streams[0], Rpc_SyncRancherProject_FullMethodName, opts...)
 	if err != nil {
 		return nil, err
 	}
-	x := &rpcSyncK8SWorkloadClient{stream}
+	x := &rpcSyncRancherProjectClient{stream}
 	if err := x.ClientStream.SendMsg(in); err != nil {
 		return nil, err
 	}
@@ -63,17 +64,17 @@ func (c *rpcClient) SyncK8SWorkload(ctx context.Context, in *Empty, opts ...grpc
 	return x, nil
 }
 
-type Rpc_SyncK8SWorkloadClient interface {
-	Recv() (*WorkLoad, error)
+type Rpc_SyncRancherProjectClient interface {
+	Recv() (*Project, error)
 	grpc.ClientStream
 }
 
-type rpcSyncK8SWorkloadClient struct {
+type rpcSyncRancherProjectClient struct {
 	grpc.ClientStream
 }
 
-func (x *rpcSyncK8SWorkloadClient) Recv() (*WorkLoad, error) {
-	m := new(WorkLoad)
+func (x *rpcSyncRancherProjectClient) Recv() (*Project, error) {
+	m := new(Project)
 	if err := x.ClientStream.RecvMsg(m); err != nil {
 		return nil, err
 	}
@@ -84,8 +85,9 @@ func (x *rpcSyncK8SWorkloadClient) Recv() (*WorkLoad, error) {
 // All implementations must embed UnimplementedRpcServer
 // for forward compatibility
 type RpcServer interface {
+	// for rancher
 	CreateTable(context.Context, *Empty) (*Empty, error)
-	SyncK8SWorkload(*Empty, Rpc_SyncK8SWorkloadServer) error
+	SyncRancherProject(*Empty, Rpc_SyncRancherProjectServer) error
 	mustEmbedUnimplementedRpcServer()
 }
 
@@ -96,8 +98,8 @@ type UnimplementedRpcServer struct {
 func (UnimplementedRpcServer) CreateTable(context.Context, *Empty) (*Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateTable not implemented")
 }
-func (UnimplementedRpcServer) SyncK8SWorkload(*Empty, Rpc_SyncK8SWorkloadServer) error {
-	return status.Errorf(codes.Unimplemented, "method SyncK8SWorkload not implemented")
+func (UnimplementedRpcServer) SyncRancherProject(*Empty, Rpc_SyncRancherProjectServer) error {
+	return status.Errorf(codes.Unimplemented, "method SyncRancherProject not implemented")
 }
 func (UnimplementedRpcServer) mustEmbedUnimplementedRpcServer() {}
 
@@ -130,24 +132,24 @@ func _Rpc_CreateTable_Handler(srv interface{}, ctx context.Context, dec func(int
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Rpc_SyncK8SWorkload_Handler(srv interface{}, stream grpc.ServerStream) error {
+func _Rpc_SyncRancherProject_Handler(srv interface{}, stream grpc.ServerStream) error {
 	m := new(Empty)
 	if err := stream.RecvMsg(m); err != nil {
 		return err
 	}
-	return srv.(RpcServer).SyncK8SWorkload(m, &rpcSyncK8SWorkloadServer{stream})
+	return srv.(RpcServer).SyncRancherProject(m, &rpcSyncRancherProjectServer{stream})
 }
 
-type Rpc_SyncK8SWorkloadServer interface {
-	Send(*WorkLoad) error
+type Rpc_SyncRancherProjectServer interface {
+	Send(*Project) error
 	grpc.ServerStream
 }
 
-type rpcSyncK8SWorkloadServer struct {
+type rpcSyncRancherProjectServer struct {
 	grpc.ServerStream
 }
 
-func (x *rpcSyncK8SWorkloadServer) Send(m *WorkLoad) error {
+func (x *rpcSyncRancherProjectServer) Send(m *Project) error {
 	return x.ServerStream.SendMsg(m)
 }
 
@@ -155,7 +157,7 @@ func (x *rpcSyncK8SWorkloadServer) Send(m *WorkLoad) error {
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var Rpc_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "K8sGenie.k8s.Rpc",
+	ServiceName: "K8sGenie.resourcer.Rpc",
 	HandlerType: (*RpcServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
@@ -165,10 +167,10 @@ var Rpc_ServiceDesc = grpc.ServiceDesc{
 	},
 	Streams: []grpc.StreamDesc{
 		{
-			StreamName:    "SyncK8sWorkload",
-			Handler:       _Rpc_SyncK8SWorkload_Handler,
+			StreamName:    "SyncRancherProject",
+			Handler:       _Rpc_SyncRancherProject_Handler,
 			ServerStreams: true,
 		},
 	},
-	Metadata: "apps/k8s/pb/rpc.proto",
+	Metadata: "apps/rancher/pb/rpc.proto",
 }

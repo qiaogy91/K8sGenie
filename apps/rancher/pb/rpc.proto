@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package K8sGenie.resourcer;
+
+import "apps/rancher/pb/model.proto";
+
+option go_package = "gitee.com/qiaogy91/K8sGenie/apps/rancher";
+
+service Rpc {
+    // for rancher
+    rpc CreateTable(Empty)returns (Empty);
+    rpc SyncRancherProject (Empty) returns (stream Project);
+}

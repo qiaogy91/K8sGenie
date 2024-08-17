@@ -18,7 +18,6 @@ const (
 
 type Service interface {
 	RpcServer
-	SyncRancherProject(context.Context) error
 	DescRancherProject(ctx context.Context, req *DescRancherProjectReq) (*resourcer.Project, error) // 查询项目详细
 }
 

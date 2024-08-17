@@ -12,36 +12,11 @@ import (
 	"time"
 )
 
-func (i *Impl) TableCreate(ctx context.Context, empty *k8s.Empty) (*k8s.Empty, error) {
-	if err := i.db.WithContext(ctx).AutoMigrate(&resourcer.Project{}, &k8s.WorkLoad{}); err != nil {
+func (i *Impl) CreateTable(ctx context.Context, empty *k8s.Empty) (*k8s.Empty, error) {
+	if err := i.db.WithContext(ctx).AutoMigrate(&k8s.WorkLoad{}); err != nil {
 		return nil, err
 	}
 	return nil, nil
-}
-
-// SyncRancherProject 同步所有项目信息到DB
-func (i *Impl) SyncRancherProject(ctx context.Context) error {
-	// 每次都是重新获取数据，确保数据与当前完全一致
-	i.db.Exec("TRUNCATE TABLE projects")
-	i.db.Exec("ALTER TABLE projects AUTO_INCREMENT = 1")
-
-	stream, err := i.rc.RancherResourceSync(ctx, nil)
-	if err != nil {
-		return err
-	}
-
-	for {
-		rsp, err := stream.Recv()
-		if err != nil {
-			common.L().Error().Msgf("stream recv err: %v", err)
-			break
-		}
-		if err := i.db.WithContext(ctx).Create(rsp).Error; err != nil {
-			return err
-		}
-	}
-	common.L().Info().Msgf("recv finished")
-	return nil
 }
 
 // SyncK8SWorkload 将Kubernetes 数据同步到DB

@@ -1,8 +1,6 @@
 package impl
 
 import (
-	"gitee.com/qiaogy91/InfraGenie/apps/resourcer"
-	resourceClient "gitee.com/qiaogy91/InfraGenie/client"
 	"gitee.com/qiaogy91/K8sGenie/apps/k8s"
 	"gitee.com/qiaogy91/K8sGenie/conf"
 	"gitee.com/qiaogy91/K8sGenie/ioc"
@@ -18,7 +16,6 @@ var _ k8s.Service = &Impl{}
 type Impl struct {
 	db *gorm.DB
 	k8s.UnimplementedRpcServer
-	rc resourcer.RpcClient
 	cs map[string]*kubernetes.Clientset
 }
 
@@ -29,9 +26,6 @@ func (i *Impl) Name() string {
 func (i *Impl) Init() error {
 	// db
 	i.db = conf.C().GetMysqlPool()
-
-	// rancher client
-	i.rc = resourceClient.NewClient(conf.C().RancherAddr(), conf.C().Rancher.Token)
 
 	// kubeConf 文件
 	apiConf, err := clientcmd.LoadFromFile(conf.C().Rancher.KubeFile)

@@ -29,7 +29,13 @@ func init() {
 }
 
 func TestImpl_TableCreate(t *testing.T) {
-	if _, err := c.TableCreate(ctx, nil); err != nil {
+	if _, err := c.CreateTable(ctx, nil); err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestImpl_SyncK8SWorkload(t *testing.T) {
+	if err := c.SyncK8SWorkload(nil, &Stream{}); err != nil {
 		t.Fatal(err)
 	}
 }
@@ -46,15 +52,4 @@ func TestImpl_DescRancherProject(t *testing.T) {
 		t.Fatal(err)
 	}
 	t.Logf("%+v", ins)
-}
-
-func TestImpl_SyncRancherProject(t *testing.T) {
-	if err := c.SyncRancherProject(ctx); err != nil {
-		t.Fatal(err)
-	}
-}
-func TestImpl_SyncK8SWorkload(t *testing.T) {
-	if err := c.SyncK8SWorkload(nil, &Stream{}); err != nil {
-		t.Fatal(err)
-	}
 }
