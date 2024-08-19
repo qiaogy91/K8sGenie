@@ -19,8 +19,9 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	Rpc_CreateTable_FullMethodName        = "/K8sGenie.resourcer.Rpc/CreateTable"
-	Rpc_SyncRancherProject_FullMethodName = "/K8sGenie.resourcer.Rpc/SyncRancherProject"
+	Rpc_CreateTable_FullMethodName  = "/K8sGenie.resourcer.Rpc/CreateTable"
+	Rpc_SyncProject_FullMethodName  = "/K8sGenie.resourcer.Rpc/SyncProject"
+	Rpc_QueryProject_FullMethodName = "/K8sGenie.resourcer.Rpc/QueryProject"
 )
 
 // RpcClient is the client API for Rpc service.
@@ -29,7 +30,8 @@ const (
 type RpcClient interface {
 	// for rancher
 	CreateTable(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*Empty, error)
-	SyncRancherProject(ctx context.Context, in *Empty, opts ...grpc.CallOption) (Rpc_SyncRancherProjectClient, error)
+	SyncProject(ctx context.Context, in *Empty, opts ...grpc.CallOption) (Rpc_SyncProjectClient, error)
+	QueryProject(ctx context.Context, in *QueryProjectReq, opts ...grpc.CallOption) (*ProjectSet, error)
 }
 
 type rpcClient struct {
@@ -49,12 +51,12 @@ func (c *rpcClient) CreateTable(ctx context.Context, in *Empty, opts ...grpc.Cal
 	return out, nil
 }
 
-func (c *rpcClient) SyncRancherProject(ctx context.Context, in *Empty, opts ...grpc.CallOption) (Rpc_SyncRancherProjectClient, error) {
-	stream, err := c.cc.NewStream(ctx, &Rpc_ServiceDesc.Streams[0], Rpc_SyncRancherProject_FullMethodName, opts...)
+func (c *rpcClient) SyncProject(ctx context.Context, in *Empty, opts ...grpc.CallOption) (Rpc_SyncProjectClient, error) {
+	stream, err := c.cc.NewStream(ctx, &Rpc_ServiceDesc.Streams[0], Rpc_SyncProject_FullMethodName, opts...)
 	if err != nil {
 		return nil, err
 	}
-	x := &rpcSyncRancherProjectClient{stream}
+	x := &rpcSyncProjectClient{stream}
 	if err := x.ClientStream.SendMsg(in); err != nil {
 		return nil, err
 	}
@@ -64,21 +66,30 @@ func (c *rpcClient) SyncRancherProject(ctx context.Context, in *Empty, opts ...g
 	return x, nil
 }
 
-type Rpc_SyncRancherProjectClient interface {
+type Rpc_SyncProjectClient interface {
 	Recv() (*Project, error)
 	grpc.ClientStream
 }
 
-type rpcSyncRancherProjectClient struct {
+type rpcSyncProjectClient struct {
 	grpc.ClientStream
 }
 
-func (x *rpcSyncRancherProjectClient) Recv() (*Project, error) {
+func (x *rpcSyncProjectClient) Recv() (*Project, error) {
 	m := new(Project)
 	if err := x.ClientStream.RecvMsg(m); err != nil {
 		return nil, err
 	}
 	return m, nil
+}
+
+func (c *rpcClient) QueryProject(ctx context.Context, in *QueryProjectReq, opts ...grpc.CallOption) (*ProjectSet, error) {
+	out := new(ProjectSet)
+	err := c.cc.Invoke(ctx, Rpc_QueryProject_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
 }
 
 // RpcServer is the server API for Rpc service.
@@ -87,7 +98,8 @@ func (x *rpcSyncRancherProjectClient) Recv() (*Project, error) {
 type RpcServer interface {
 	// for rancher
 	CreateTable(context.Context, *Empty) (*Empty, error)
-	SyncRancherProject(*Empty, Rpc_SyncRancherProjectServer) error
+	SyncProject(*Empty, Rpc_SyncProjectServer) error
+	QueryProject(context.Context, *QueryProjectReq) (*ProjectSet, error)
 	mustEmbedUnimplementedRpcServer()
 }
 
@@ -98,8 +110,11 @@ type UnimplementedRpcServer struct {
 func (UnimplementedRpcServer) CreateTable(context.Context, *Empty) (*Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateTable not implemented")
 }
-func (UnimplementedRpcServer) SyncRancherProject(*Empty, Rpc_SyncRancherProjectServer) error {
-	return status.Errorf(codes.Unimplemented, "method SyncRancherProject not implemented")
+func (UnimplementedRpcServer) SyncProject(*Empty, Rpc_SyncProjectServer) error {
+	return status.Errorf(codes.Unimplemented, "method SyncProject not implemented")
+}
+func (UnimplementedRpcServer) QueryProject(context.Context, *QueryProjectReq) (*ProjectSet, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method QueryProject not implemented")
 }
 func (UnimplementedRpcServer) mustEmbedUnimplementedRpcServer() {}
 
@@ -132,25 +147,43 @@ func _Rpc_CreateTable_Handler(srv interface{}, ctx context.Context, dec func(int
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Rpc_SyncRancherProject_Handler(srv interface{}, stream grpc.ServerStream) error {
+func _Rpc_SyncProject_Handler(srv interface{}, stream grpc.ServerStream) error {
 	m := new(Empty)
 	if err := stream.RecvMsg(m); err != nil {
 		return err
 	}
-	return srv.(RpcServer).SyncRancherProject(m, &rpcSyncRancherProjectServer{stream})
+	return srv.(RpcServer).SyncProject(m, &rpcSyncProjectServer{stream})
 }
 
-type Rpc_SyncRancherProjectServer interface {
+type Rpc_SyncProjectServer interface {
 	Send(*Project) error
 	grpc.ServerStream
 }
 
-type rpcSyncRancherProjectServer struct {
+type rpcSyncProjectServer struct {
 	grpc.ServerStream
 }
 
-func (x *rpcSyncRancherProjectServer) Send(m *Project) error {
+func (x *rpcSyncProjectServer) Send(m *Project) error {
 	return x.ServerStream.SendMsg(m)
+}
+
+func _Rpc_QueryProject_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(QueryProjectReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RpcServer).QueryProject(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Rpc_QueryProject_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RpcServer).QueryProject(ctx, req.(*QueryProjectReq))
+	}
+	return interceptor(ctx, in, info, handler)
 }
 
 // Rpc_ServiceDesc is the grpc.ServiceDesc for Rpc service.
@@ -164,11 +197,15 @@ var Rpc_ServiceDesc = grpc.ServiceDesc{
 			MethodName: "CreateTable",
 			Handler:    _Rpc_CreateTable_Handler,
 		},
+		{
+			MethodName: "QueryProject",
+			Handler:    _Rpc_QueryProject_Handler,
+		},
 	},
 	Streams: []grpc.StreamDesc{
 		{
-			StreamName:    "SyncRancherProject",
-			Handler:       _Rpc_SyncRancherProject_Handler,
+			StreamName:    "SyncProject",
+			Handler:       _Rpc_SyncProject_Handler,
 			ServerStreams: true,
 		},
 	},

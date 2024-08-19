@@ -1,6 +1,7 @@
 package test
 
 import (
+	_ "gitee.com/qiaogy91/K8sGenie/apps"
 	"gitee.com/qiaogy91/K8sGenie/conf"
 	"gitee.com/qiaogy91/K8sGenie/ioc"
 )

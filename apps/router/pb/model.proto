@@ -25,3 +25,8 @@ message Router {
     Meta meta = 1;
     Spec spec = 2;
 }
+
+message RouterSet {
+    int64 total = 1;
+    repeated Router items = 2;
+}

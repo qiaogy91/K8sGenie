@@ -36,8 +36,33 @@ func TestImpl_CreateTable(t *testing.T) {
 }
 
 // TestImpl_SyncRancherResource 同步项目信息
-func TestImpl_SyncRancherResource(t *testing.T) {
-	if err := c.SyncRancherProject(nil, &MockStream{}); err != nil {
+func TestImpl_SyncResource(t *testing.T) {
+	if err := c.SyncProject(nil, &MockStream{}); err != nil {
 		t.Fatal(err)
 	}
+}
+
+func TestImpl_QueryProject(t *testing.T) {
+	req := &rancher.QueryProjectReq{
+		// 根据注解查询
+		//SearchType: rancher.SEARCH_TYPE_SEARCH_TYPE_ANNOTATION,
+		//KeyWord:    "c-m-nnljl7c9:p-76q6t",
+		// 根据ID 查询
+		SearchType: rancher.SEARCH_TYPE_SEARCH_TYPE_ID,
+		KeyWord:    "3",
+		// 根据项目名称查询
+		//SearchType: rancher.SEARCH_TYPE_SEARCH_TYPE_CLUSTER_NAME,
+		//KeyWord:    "itcp-k8s-uat",
+		//SearchType: rancher.SEARCH_TYPE_SEARCH_TYPE_PROJECT_DESC,
+		//KeyWord:    "工作",
+		//SearchType: rancher.SEARCH_TYPE_SEARCH_TYPE_PROJECT_LINE,
+		//KeyWord:    "协同",
+		//SearchType: rancher.SEARCH_TYPE_SEARCH_TYPE_PROJECT_CODE,
+		//KeyWord:    "runwork",
+	}
+	ins, err := c.QueryProject(ctx, req)
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Logf("%+v", ins)
 }

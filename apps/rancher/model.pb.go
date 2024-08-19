@@ -273,7 +273,7 @@ func (x *Spec) GetUser() string {
 	return ""
 }
 
-type RancherSet struct {
+type ProjectSet struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
@@ -282,8 +282,8 @@ type RancherSet struct {
 	Items []*Project `protobuf:"bytes,2,rep,name=items,proto3" json:"items,omitempty"`
 }
 
-func (x *RancherSet) Reset() {
-	*x = RancherSet{}
+func (x *ProjectSet) Reset() {
+	*x = ProjectSet{}
 	if protoimpl.UnsafeEnabled {
 		mi := &file_apps_rancher_pb_model_proto_msgTypes[4]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -291,13 +291,13 @@ func (x *RancherSet) Reset() {
 	}
 }
 
-func (x *RancherSet) String() string {
+func (x *ProjectSet) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*RancherSet) ProtoMessage() {}
+func (*ProjectSet) ProtoMessage() {}
 
-func (x *RancherSet) ProtoReflect() protoreflect.Message {
+func (x *ProjectSet) ProtoReflect() protoreflect.Message {
 	mi := &file_apps_rancher_pb_model_proto_msgTypes[4]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -309,19 +309,19 @@ func (x *RancherSet) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use RancherSet.ProtoReflect.Descriptor instead.
-func (*RancherSet) Descriptor() ([]byte, []int) {
+// Deprecated: Use ProjectSet.ProtoReflect.Descriptor instead.
+func (*ProjectSet) Descriptor() ([]byte, []int) {
 	return file_apps_rancher_pb_model_proto_rawDescGZIP(), []int{4}
 }
 
-func (x *RancherSet) GetTotal() int64 {
+func (x *ProjectSet) GetTotal() int64 {
 	if x != nil {
 		return x.Total
 	}
 	return 0
 }
 
-func (x *RancherSet) GetItems() []*Project {
+func (x *ProjectSet) GetItems() []*Project {
 	if x != nil {
 		return x.Items
 	}
@@ -359,7 +359,7 @@ var file_apps_rancher_pb_model_proto_rawDesc = []byte{
 	0x65, 0x63, 0x74, 0x5f, 0x6c, 0x69, 0x6e, 0x65, 0x18, 0x06, 0x20, 0x01, 0x28, 0x09, 0x52, 0x0b,
 	0x70, 0x72, 0x6f, 0x6a, 0x65, 0x63, 0x74, 0x4c, 0x69, 0x6e, 0x65, 0x12, 0x12, 0x0a, 0x04, 0x75,
 	0x73, 0x65, 0x72, 0x18, 0x07, 0x20, 0x01, 0x28, 0x09, 0x52, 0x04, 0x75, 0x73, 0x65, 0x72, 0x22,
-	0x55, 0x0a, 0x0a, 0x52, 0x61, 0x6e, 0x63, 0x68, 0x65, 0x72, 0x53, 0x65, 0x74, 0x12, 0x14, 0x0a,
+	0x55, 0x0a, 0x0a, 0x50, 0x72, 0x6f, 0x6a, 0x65, 0x63, 0x74, 0x53, 0x65, 0x74, 0x12, 0x14, 0x0a,
 	0x05, 0x74, 0x6f, 0x74, 0x61, 0x6c, 0x18, 0x01, 0x20, 0x01, 0x28, 0x03, 0x52, 0x05, 0x74, 0x6f,
 	0x74, 0x61, 0x6c, 0x12, 0x31, 0x0a, 0x05, 0x69, 0x74, 0x65, 0x6d, 0x73, 0x18, 0x02, 0x20, 0x03,
 	0x28, 0x0b, 0x32, 0x1b, 0x2e, 0x4b, 0x38, 0x73, 0x47, 0x65, 0x6e, 0x69, 0x65, 0x2e, 0x72, 0x65,
@@ -388,12 +388,12 @@ var file_apps_rancher_pb_model_proto_goTypes = []any{
 	(*Project)(nil),    // 1: K8sGenie.resourcer.Project
 	(*Meta)(nil),       // 2: K8sGenie.resourcer.Meta
 	(*Spec)(nil),       // 3: K8sGenie.resourcer.Spec
-	(*RancherSet)(nil), // 4: K8sGenie.resourcer.RancherSet
+	(*ProjectSet)(nil), // 4: K8sGenie.resourcer.ProjectSet
 }
 var file_apps_rancher_pb_model_proto_depIdxs = []int32{
 	2, // 0: K8sGenie.resourcer.Project.meta:type_name -> K8sGenie.resourcer.Meta
 	3, // 1: K8sGenie.resourcer.Project.spec:type_name -> K8sGenie.resourcer.Spec
-	1, // 2: K8sGenie.resourcer.RancherSet.items:type_name -> K8sGenie.resourcer.Project
+	1, // 2: K8sGenie.resourcer.ProjectSet.items:type_name -> K8sGenie.resourcer.Project
 	3, // [3:3] is the sub-list for method output_type
 	3, // [3:3] is the sub-list for method input_type
 	3, // [3:3] is the sub-list for extension type_name
@@ -456,7 +456,7 @@ func file_apps_rancher_pb_model_proto_init() {
 			}
 		}
 		file_apps_rancher_pb_model_proto_msgTypes[4].Exporter = func(v any, i int) any {
-			switch v := v.(*RancherSet); i {
+			switch v := v.(*ProjectSet); i {
 			case 0:
 				return &v.state
 			case 1:

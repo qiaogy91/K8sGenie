@@ -1,10 +1,5 @@
 package k8s
 
-import (
-	"context"
-	"gitee.com/qiaogy91/InfraGenie/apps/resourcer"
-)
-
 const (
 	AppName = "k8s"
 )
@@ -18,12 +13,4 @@ const (
 
 type Service interface {
 	RpcServer
-	DescRancherProject(ctx context.Context, req *DescRancherProjectReq) (*resourcer.Project, error) // 查询项目详细
-}
-
-type DescRancherProjectReq struct {
-	DescType    DescTypeRancherType
-	ProjectID   string
-	ClusterName string
-	Namespace   string
 }

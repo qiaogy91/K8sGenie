@@ -38,7 +38,7 @@ message Spec {
 }
 
 
-message RancherSet {
+message ProjectSet {
     int64 total = 1;
     repeated Project items = 2;
 }

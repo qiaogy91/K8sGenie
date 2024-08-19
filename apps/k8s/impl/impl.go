@@ -2,6 +2,7 @@ package impl
 
 import (
 	"gitee.com/qiaogy91/K8sGenie/apps/k8s"
+	"gitee.com/qiaogy91/K8sGenie/apps/rancher"
 	"gitee.com/qiaogy91/K8sGenie/conf"
 	"gitee.com/qiaogy91/K8sGenie/ioc"
 	"google.golang.org/grpc"
@@ -17,6 +18,7 @@ type Impl struct {
 	db *gorm.DB
 	k8s.UnimplementedRpcServer
 	cs map[string]*kubernetes.Clientset
+	rc rancher.Service
 }
 
 func (i *Impl) Name() string {
@@ -26,6 +28,9 @@ func (i *Impl) Name() string {
 func (i *Impl) Init() error {
 	// db
 	i.db = conf.C().GetMysqlPool()
+
+	// rancher svc
+	i.rc = ioc.GetController(rancher.AppName).(rancher.Service)
 
 	// kubeConf 文件
 	apiConf, err := clientcmd.LoadFromFile(conf.C().Rancher.KubeFile)

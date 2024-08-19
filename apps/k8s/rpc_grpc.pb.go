@@ -21,6 +21,7 @@ const _ = grpc.SupportPackageIsVersion7
 const (
 	Rpc_CreateTable_FullMethodName     = "/K8sGenie.k8s.Rpc/CreateTable"
 	Rpc_SyncK8SWorkload_FullMethodName = "/K8sGenie.k8s.Rpc/SyncK8sWorkload"
+	Rpc_DescNamespace_FullMethodName   = "/K8sGenie.k8s.Rpc/DescNamespace"
 )
 
 // RpcClient is the client API for Rpc service.
@@ -29,6 +30,7 @@ const (
 type RpcClient interface {
 	CreateTable(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*Empty, error)
 	SyncK8SWorkload(ctx context.Context, in *Empty, opts ...grpc.CallOption) (Rpc_SyncK8SWorkloadClient, error)
+	DescNamespace(ctx context.Context, in *DescNamespaceReq, opts ...grpc.CallOption) (*DescNamespaceRsp, error)
 }
 
 type rpcClient struct {
@@ -80,12 +82,22 @@ func (x *rpcSyncK8SWorkloadClient) Recv() (*WorkLoad, error) {
 	return m, nil
 }
 
+func (c *rpcClient) DescNamespace(ctx context.Context, in *DescNamespaceReq, opts ...grpc.CallOption) (*DescNamespaceRsp, error) {
+	out := new(DescNamespaceRsp)
+	err := c.cc.Invoke(ctx, Rpc_DescNamespace_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // RpcServer is the server API for Rpc service.
 // All implementations must embed UnimplementedRpcServer
 // for forward compatibility
 type RpcServer interface {
 	CreateTable(context.Context, *Empty) (*Empty, error)
 	SyncK8SWorkload(*Empty, Rpc_SyncK8SWorkloadServer) error
+	DescNamespace(context.Context, *DescNamespaceReq) (*DescNamespaceRsp, error)
 	mustEmbedUnimplementedRpcServer()
 }
 
@@ -98,6 +110,9 @@ func (UnimplementedRpcServer) CreateTable(context.Context, *Empty) (*Empty, erro
 }
 func (UnimplementedRpcServer) SyncK8SWorkload(*Empty, Rpc_SyncK8SWorkloadServer) error {
 	return status.Errorf(codes.Unimplemented, "method SyncK8SWorkload not implemented")
+}
+func (UnimplementedRpcServer) DescNamespace(context.Context, *DescNamespaceReq) (*DescNamespaceRsp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DescNamespace not implemented")
 }
 func (UnimplementedRpcServer) mustEmbedUnimplementedRpcServer() {}
 
@@ -151,6 +166,24 @@ func (x *rpcSyncK8SWorkloadServer) Send(m *WorkLoad) error {
 	return x.ServerStream.SendMsg(m)
 }
 
+func _Rpc_DescNamespace_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DescNamespaceReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RpcServer).DescNamespace(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Rpc_DescNamespace_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RpcServer).DescNamespace(ctx, req.(*DescNamespaceReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Rpc_ServiceDesc is the grpc.ServiceDesc for Rpc service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -161,6 +194,10 @@ var Rpc_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "CreateTable",
 			Handler:    _Rpc_CreateTable_Handler,
+		},
+		{
+			MethodName: "DescNamespace",
+			Handler:    _Rpc_DescNamespace_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{

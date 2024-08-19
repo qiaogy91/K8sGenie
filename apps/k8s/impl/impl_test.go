@@ -40,16 +40,15 @@ func TestImpl_SyncK8SWorkload(t *testing.T) {
 	}
 }
 
-func TestImpl_DescRancherProject(t *testing.T) {
-	req := &k8s.DescRancherProjectReq{
-		DescType:    k8s.FromProjectID,
-		ProjectID:   "c-m-zcjwcxrr:p-zm2vx",
-		ClusterName: "itcp-k8s-uat",
-		Namespace:   "aj-uat",
-	}
-	ins, err := c.DescRancherProject(ctx, req)
+func TestImpl_DescNamespace(t *testing.T) {
+	ins, err := c.DescNamespace(ctx, &k8s.DescNamespaceReq{
+		ClusterName:   "itcp-k8s-uat",
+		NamespaceName: "djms-dev",
+	})
+
 	if err != nil {
 		t.Fatal(err)
 	}
+
 	t.Logf("%+v", ins)
 }

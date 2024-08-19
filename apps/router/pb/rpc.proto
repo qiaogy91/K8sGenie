@@ -1,12 +1,34 @@
 syntax = "proto3";
+
 package K8sGenie.router;
+
+import "apps/router/pb/model.proto";
+
 option go_package = "gitee.com/qiaogy91/K8sGenie/apps/router";
 
 
+message Empty {}
 
 service Rpc {
+    rpc CreateTable (Empty) returns (Empty);
     // 1. 维护告警路由表 CURD
 
-
+    rpc CreateRoute (Spec) returns (Router);
+    rpc DeleteRoute (DeleteRouteReq) returns (Router);
+    rpc DescRoute (DescRouteReq) returns (Router);
+//    rpc QueryRoute (QueryRouteReq) returns ();
+    rpc UpdateRoute (Spec) returns (Router);
     // 1. 发送告警（根据告警信息，能够判断应该发往哪个群组的 webhook，并发送）
 }
+
+message DescRouteReq {
+    string id = 1;
+}
+message DeleteRouteReq {
+    string id = 1;
+}
+message QueryRouteReq {}
+
+
+
+

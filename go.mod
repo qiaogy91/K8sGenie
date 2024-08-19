@@ -3,7 +3,6 @@ module gitee.com/qiaogy91/K8sGenie
 go 1.23.0
 
 require (
-	gitee.com/qiaogy91/InfraGenie v0.0.0-20240815072126-ac3f6ebbe92c
 	github.com/BurntSushi/toml v1.4.0
 	github.com/caarlos0/env/v11 v11.2.2
 	github.com/emicklei/go-restful/v3 v3.12.1

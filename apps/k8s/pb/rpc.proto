@@ -2,6 +2,7 @@ syntax = "proto3";
 package K8sGenie.k8s;
 
 import "apps/k8s/pb/model.proto";
+import "apps/rancher/pb/model.proto";
 
 option go_package = "gitee.com/qiaogy91/K8sGenie/apps/k8s";
 
@@ -9,4 +10,16 @@ option go_package = "gitee.com/qiaogy91/K8sGenie/apps/k8s";
 service Rpc {
     rpc CreateTable(Empty)returns (Empty);
     rpc SyncK8sWorkload(Empty)returns (stream WorkLoad);
+    rpc DescNamespace(DescNamespaceReq)returns (DescNamespaceRsp);
+}
+
+
+message DescNamespaceReq {
+    string cluster_name = 1;
+    string namespace_name = 2;
+}
+
+message DescNamespaceRsp {
+    string namespace_name =1;
+    resourcer.Project project = 2;
 }
