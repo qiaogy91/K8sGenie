@@ -22,6 +22,7 @@ const (
 	Rpc_CreateTable_FullMethodName     = "/K8sGenie.k8s.Rpc/CreateTable"
 	Rpc_SyncK8SWorkload_FullMethodName = "/K8sGenie.k8s.Rpc/SyncK8sWorkload"
 	Rpc_DescNamespace_FullMethodName   = "/K8sGenie.k8s.Rpc/DescNamespace"
+	Rpc_GetPodRamUsage_FullMethodName  = "/K8sGenie.k8s.Rpc/GetPodRamUsage"
 )
 
 // RpcClient is the client API for Rpc service.
@@ -31,6 +32,7 @@ type RpcClient interface {
 	CreateTable(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*Empty, error)
 	SyncK8SWorkload(ctx context.Context, in *Empty, opts ...grpc.CallOption) (Rpc_SyncK8SWorkloadClient, error)
 	DescNamespace(ctx context.Context, in *DescNamespaceReq, opts ...grpc.CallOption) (*DescNamespaceRsp, error)
+	GetPodRamUsage(ctx context.Context, in *GetPodRamUsageReq, opts ...grpc.CallOption) (*GetPodRamUsageRsp, error)
 }
 
 type rpcClient struct {
@@ -91,6 +93,15 @@ func (c *rpcClient) DescNamespace(ctx context.Context, in *DescNamespaceReq, opt
 	return out, nil
 }
 
+func (c *rpcClient) GetPodRamUsage(ctx context.Context, in *GetPodRamUsageReq, opts ...grpc.CallOption) (*GetPodRamUsageRsp, error) {
+	out := new(GetPodRamUsageRsp)
+	err := c.cc.Invoke(ctx, Rpc_GetPodRamUsage_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // RpcServer is the server API for Rpc service.
 // All implementations must embed UnimplementedRpcServer
 // for forward compatibility
@@ -98,6 +109,7 @@ type RpcServer interface {
 	CreateTable(context.Context, *Empty) (*Empty, error)
 	SyncK8SWorkload(*Empty, Rpc_SyncK8SWorkloadServer) error
 	DescNamespace(context.Context, *DescNamespaceReq) (*DescNamespaceRsp, error)
+	GetPodRamUsage(context.Context, *GetPodRamUsageReq) (*GetPodRamUsageRsp, error)
 	mustEmbedUnimplementedRpcServer()
 }
 
@@ -113,6 +125,9 @@ func (UnimplementedRpcServer) SyncK8SWorkload(*Empty, Rpc_SyncK8SWorkloadServer)
 }
 func (UnimplementedRpcServer) DescNamespace(context.Context, *DescNamespaceReq) (*DescNamespaceRsp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DescNamespace not implemented")
+}
+func (UnimplementedRpcServer) GetPodRamUsage(context.Context, *GetPodRamUsageReq) (*GetPodRamUsageRsp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetPodRamUsage not implemented")
 }
 func (UnimplementedRpcServer) mustEmbedUnimplementedRpcServer() {}
 
@@ -184,6 +199,24 @@ func _Rpc_DescNamespace_Handler(srv interface{}, ctx context.Context, dec func(i
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Rpc_GetPodRamUsage_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetPodRamUsageReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RpcServer).GetPodRamUsage(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Rpc_GetPodRamUsage_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RpcServer).GetPodRamUsage(ctx, req.(*GetPodRamUsageReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Rpc_ServiceDesc is the grpc.ServiceDesc for Rpc service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -198,6 +231,10 @@ var Rpc_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "DescNamespace",
 			Handler:    _Rpc_DescNamespace_Handler,
+		},
+		{
+			MethodName: "GetPodRamUsage",
+			Handler:    _Rpc_GetPodRamUsage_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{

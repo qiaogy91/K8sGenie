@@ -7,7 +7,7 @@ import (
 )
 
 func init() {
-	conf.LoadFromToml("/Users/qiaogy/GolandProjects/projects/Genies/K8sGenie/etc/conf.toml")
+	conf.LoadFromToml("/Users/qiaogy/GolandProjects/projects/K8sGenie/etc/conf.toml")
 	// ioc 对象初始化，附加数据库连接池、附加业务实现对象
 	ioc.InitController()
 	ioc.InitHandler()

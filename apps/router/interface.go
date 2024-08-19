@@ -1,7 +1,7 @@
-package k8s
+package router
 
 const (
-	AppName = "k8s"
+	AppName = "router"
 )
 
 type Service interface {

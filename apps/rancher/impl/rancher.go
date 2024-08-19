@@ -82,18 +82,21 @@ func (i *Impl) QueryProject(ctx context.Context, req *rancher.QueryProjectReq) (
 	sql := i.db.WithContext(ctx).Model(&rancher.Project{})
 
 	switch req.SearchType {
-	case rancher.SEARCH_TYPE_SEARCH_TYPE_ID:
-		sql = sql.Where("id = ?", req.KeyWord)
+	case rancher.SEARCH_TYPE_SEARCH_TYPE_CLUSTER_NAME:
+		sql = sql.Where("cluster_name = ?", req.KeyWord)
+
+	case rancher.SEARCH_TYPE_SEARCH_TYPE_ANNOTATION:
+		sql = sql.Where("project_id = ?", req.KeyWord)
+	case rancher.SEARCH_TYPE_SEARCH_TYPE_PROJECT_ID:
+		sql = sql.Where("project_id = ?", req.KeyWord)
+
 	case rancher.SEARCH_TYPE_SEARCH_TYPE_PROJECT_CODE:
 		sql = sql.Where("project_code like ?", "%"+req.KeyWord+"%")
 	case rancher.SEARCH_TYPE_SEARCH_TYPE_PROJECT_LINE:
 		sql = sql.Where("project_line like ?", "%"+req.KeyWord+"%")
 	case rancher.SEARCH_TYPE_SEARCH_TYPE_PROJECT_DESC:
 		sql = sql.Where("project_desc like ?", "%"+req.KeyWord+"%")
-	case rancher.SEARCH_TYPE_SEARCH_TYPE_CLUSTER_NAME:
-		sql = sql.Where("cluster_name = ?", req.KeyWord)
-	case rancher.SEARCH_TYPE_SEARCH_TYPE_ANNOTATION:
-		sql = sql.Where("project_id = ?", req.KeyWord)
+
 	}
 
 	if err := sql.Find(&ins.Items).Error; err != nil {

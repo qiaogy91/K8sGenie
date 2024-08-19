@@ -48,8 +48,8 @@ func TestImpl_QueryProject(t *testing.T) {
 		//SearchType: rancher.SEARCH_TYPE_SEARCH_TYPE_ANNOTATION,
 		//KeyWord:    "c-m-nnljl7c9:p-76q6t",
 		// 根据ID 查询
-		SearchType: rancher.SEARCH_TYPE_SEARCH_TYPE_ID,
-		KeyWord:    "3",
+		SearchType: rancher.SEARCH_TYPE_SEARCH_TYPE_PROJECT_ID,
+		KeyWord:    "c-m-nnljl7c9:p-76q6t",
 		// 根据项目名称查询
 		//SearchType: rancher.SEARCH_TYPE_SEARCH_TYPE_CLUSTER_NAME,
 		//KeyWord:    "itcp-k8s-uat",

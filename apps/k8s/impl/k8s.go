@@ -3,12 +3,14 @@ package impl
 import (
 	"context"
 	"errors"
+	"fmt"
 	"gitee.com/qiaogy91/K8sGenie/apps/k8s"
 	"gitee.com/qiaogy91/K8sGenie/apps/rancher"
 	"gitee.com/qiaogy91/K8sGenie/common"
 	cv1 "k8s.io/api/core/v1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
+	"sort"
 	"time"
 )
 
@@ -241,5 +243,46 @@ func (i *Impl) DescNamespace(ctx context.Context, req *k8s.DescNamespaceReq) (*k
 	if err := i.db.WithContext(ctx).Model(&rancher.Project{}).Where("project_id = ?", pid).First(&ins.Project).Error; err != nil {
 		return nil, err
 	}
+	return ins, nil
+}
+
+// GetPodRamUsage 获取资源利用率前10的pod
+func (i *Impl) GetPodRamUsage(ctx context.Context, req *k8s.GetPodRamUsageReq) (*k8s.GetPodRamUsageRsp, error) {
+	mc, ok := i.ms[req.ClusterName]
+	cc, ok := i.cs[req.ClusterName]
+
+	if !ok {
+		return nil, fmt.Errorf("cluster name err: %s", req.ClusterName)
+	}
+
+	// 获取节点 10.0.0.100 上的所有 Pod
+	pods, err := cc.CoreV1().Pods("").List(ctx, v1.ListOptions{FieldSelector: fmt.Sprintf("spec.nodeName=%s", req.NodeName)})
+	if err != nil {
+		return nil, err
+	}
+
+	// 获取这些 Pod 的 metrics
+	ins := &k8s.GetPodRamUsageRsp{}
+
+	for _, pod := range pods.Items {
+
+		podMetrics, err := mc.MetricsV1beta1().PodMetricses(pod.Namespace).Get(ctx, pod.Name, v1.GetOptions{})
+		if err != nil {
+			common.L().Error().Msgf("Error getting metrics for pod %s: %v", pod.Name, err)
+			continue
+		}
+
+		for _, c := range podMetrics.Containers {
+			ins.Items = append(ins.Items, &k8s.PodMetricDetail{
+				PodName:       pod.Name,
+				NamespaceName: pod.Namespace,
+				CpuCores:      c.Usage.Cpu().MilliValue(),
+				RamMbi:        c.Usage.Memory().Value() / 1024 / 1024,
+			})
+			ins.Count += 1
+		}
+	}
+
+	sort.Sort(ins)
 	return ins, nil
 }

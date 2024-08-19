@@ -10,6 +10,7 @@ import (
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
 	"k8s.io/client-go/tools/clientcmd/api"
+	"k8s.io/metrics/pkg/client/clientset/versioned"
 )
 
 var _ k8s.Service = &Impl{}
@@ -18,6 +19,7 @@ type Impl struct {
 	db *gorm.DB
 	k8s.UnimplementedRpcServer
 	cs map[string]*kubernetes.Clientset
+	ms map[string]*versioned.Clientset
 	rc rancher.Service
 }
 
@@ -38,29 +40,35 @@ func (i *Impl) Init() error {
 		panic(err)
 	}
 
+	// 初始化map
+	i.cs = make(map[string]*kubernetes.Clientset)
+	i.ms = make(map[string]*versioned.Clientset)
+
 	// 将各个集群的名称、以及对应的clientSet 做成Map
-	clientMap := make(map[string]*kubernetes.Clientset)
 	for name, _ := range apiConf.Contexts {
-		// 获取restConf
+		// ******************** 获取restConf ********************
 		restConf, err := clientcmd.BuildConfigFromKubeconfigGetter("", func() (*api.Config, error) {
 			apiConf.CurrentContext = name  // apiConf context 切换
 			return apiConf.DeepCopy(), nil // 返回切换后的 apiConf 副本
 		})
-
 		if err != nil {
 			panic(err)
 		}
 
-		// 获取clientSet
+		// ******************** 获取clientSet ********************
 		client, err := kubernetes.NewForConfig(restConf)
 		if err != nil {
 			panic(err)
 		}
-		// 放入map
-		clientMap[name] = client
-	}
+		i.cs[name] = client
 
-	i.cs = clientMap
+		// ******************** 获取metricClient ********************
+		metricsClient, err := versioned.NewForConfig(restConf)
+		if err != nil {
+			panic(err)
+		}
+		i.ms[name] = metricsClient
+	}
 
 	return nil
 }

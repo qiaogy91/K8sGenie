@@ -52,3 +52,18 @@ func TestImpl_DescNamespace(t *testing.T) {
 
 	t.Logf("%+v", ins)
 }
+
+func TestImpl_GetPodRamUsage(t *testing.T) {
+	req := &k8s.GetPodRamUsageReq{
+		ClusterName: "itcp-k8s-prd",
+		NodeName:    "itcp-k8s-prd-worker-07",
+	}
+	ins, err := c.GetPodRamUsage(ctx, req)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	for _, item := range ins.Items {
+		t.Logf("%+v", item)
+	}
+}

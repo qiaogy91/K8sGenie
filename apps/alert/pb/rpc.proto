@@ -1,0 +1,26 @@
+syntax = "proto3";
+
+package K8sGenie.alert;
+
+
+option go_package = "gitee.com/qiaogy91/K8sGenie/apps/alert";
+
+
+service Rpc {
+    rpc HandlerAlert (HandlerAlertReq) returns (HandlerAlertRsp);
+}
+
+message HandlerAlertReq {
+    repeated Alert alerts = 2;
+}
+
+message Alert {
+    string status = 1;
+    map<string, string> labels = 2;
+    map<string, string> annotations = 3;
+    string starts_at = 4;
+    string ends_at = 5;
+}
+message HandlerAlertRsp {}
+
+
