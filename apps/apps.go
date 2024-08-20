@@ -8,5 +8,6 @@ import (
 	// 03
 	_ "gitee.com/qiaogy91/K8sGenie/apps/router/impl"
 	// 04
+	_ "gitee.com/qiaogy91/K8sGenie/apps/alert/api"
 	_ "gitee.com/qiaogy91/K8sGenie/apps/alert/impl"
 )

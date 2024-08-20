@@ -1,23 +1,15 @@
-package provider
+package alert
 
-import "context"
-
-type Service interface {
-	SendCard(ctx context.Context, url string, data []byte) []byte
-}
-
-/*0. 公共集群告警统一处理
-  - robotName: "devopsRobot"
-    webhook: "https://open.rwork.crc.com.cn/open-apis/bot/v2/hook/327a89a7-cce9-42f9-8dfe-2deb8b4413b7"
+/*
+集群级告警：
+	webhook: "https://open.rwork.crc.com.cn/open-apis/bot/v2/hook/327a89a7-cce9-42f9-8dfe-2deb8b4413b7"
     key: "l2Dgny5nI48ZMcqDl8wbrh"
-    extraLabels:
-      - name: "cluster_name"
-        desc: "集群名称"
-      - name: "level"
-        desc: "告警级别"
 
+产线级告警：
+	webhook: "https://open.rwork.crc.com.cn/open-apis/bot/v2/hook/395fb852-7884-45da-880c-e2290ad2698e"
+	key: “w8mKUHSZi4nEoMRqvVtFCb”
 */
-// CardTemplate json模板，需按序提供如下参数
+
 const CardTemplate = `{
     "timestamp": %d,
     "sign": "%s",
@@ -27,13 +19,6 @@ const CardTemplate = `{
             "wide_screen_mode": true
         },
         "elements": [
-            {
-                "tag": "markdown",
-                "content": "%s"
-            },
-            {
-                "tag": "hr"
-            },
             {
                 "tag": "markdown",
                 "content": "%s"

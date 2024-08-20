@@ -16,11 +16,19 @@ message HandlerAlertReq {
 
 message Alert {
     string status = 1;
-    map<string, string> labels = 2;
-    map<string, string> annotations = 3;
-    string starts_at = 4;
-    string ends_at = 5;
+    string starts_at = 2;
+    string ends_at = 3;
+    map<string, string> labels = 4;
+    map<string, string> annotations = 5;
+
 }
-message HandlerAlertRsp {}
+message HandlerAlertRsp {
+    repeated Response rsp = 1;
+}
+
+message Response {
+    int64 code = 1;
+    string msg = 2;
+}
 
 

@@ -2,7 +2,6 @@ package impl
 
 import (
 	"context"
-	"fmt"
 	"gitee.com/qiaogy91/K8sGenie/apps/rancher"
 	"gitee.com/qiaogy91/K8sGenie/apps/router"
 	"github.com/go-playground/validator"
@@ -19,15 +18,12 @@ func (i *Impl) CreateRoute(ctx context.Context, spec *router.Spec) (*router.Rout
 		return nil, err
 	}
 
-	// 判断是否有效ID
-	pro, err := i.rc.QueryProject(ctx, &rancher.QueryProjectReq{SearchType: rancher.SEARCH_TYPE_SEARCH_TYPE_PROJECT_ID, KeyWord: spec.ProjectId})
-	if err != nil {
-		return nil, err
-	}
-
-	// 判断project 是否属于 cluster
-	if pro.Items[0].Spec.ClusterName != spec.ClusterName {
-		return nil, fmt.Errorf("%s desc is %s, not belongs to %s", spec.ProjectId, pro.Items[0].Spec.ProjectDesc, spec.ClusterName)
+	// 如果提供了projectID
+	if spec.ProjectId != "" {
+		// 判断是否有效ID
+		if _, err := i.rc.QueryProject(ctx, &rancher.QueryProjectReq{SearchType: rancher.SEARCH_TYPE_SEARCH_TYPE_PROJECT_ID, KeyWord: spec.ProjectId}); err != nil {
+			return nil, err
+		}
 	}
 
 	// 创建
@@ -61,6 +57,8 @@ func (i *Impl) QueryRoute(ctx context.Context, req *router.QueryRouteReq) (*rout
 	ins := &router.RouterSet{}
 
 	switch req.SearchType {
+	case router.SEARCH_TYPE_SEARCH_TYPE_PROJECT_ID:
+		sql = sql.Where("project_id = ?", req.KeyWord)
 	case router.SEARCH_TYPE_SEARCH_TYPE_ROUTER_ID:
 		sql = sql.Where("id = ?", req.KeyWord)
 	case router.SEARCH_TYPE_SEARCH_TYPE_CLUSTER_NAME:

@@ -85,17 +85,14 @@ func (x *Meta) GetUpdatedAt() int64 {
 	return 0
 }
 
-// 告警信息包含关键字：robot_name/cluster_name、namespace_name，根据这两个关键字，可以唯一定位一个 Project，进而查询到该项目对应的告警 endpoint
-// 告警信息只有关键字：robot_name/cluster_name ，则说明是集群级别的监控，直接查表得到对应的 endpoint
 type Spec struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	// @gotags: validate:"required"
-	ClusterName string `protobuf:"bytes,1,opt,name=cluster_name,json=clusterName,proto3" json:"cluster_name,omitempty" validate:"required"`
-	// @gotags: validate:"required" gorm:"unique"
-	ProjectId string `protobuf:"bytes,2,opt,name=project_id,json=projectId,proto3" json:"project_id,omitempty" validate:"required" gorm:"unique"`
+	ClusterName string `protobuf:"bytes,1,opt,name=cluster_name,json=clusterName,proto3" json:"cluster_name,omitempty"`
+	// @gotags: gorm:"unique"
+	ProjectId string `protobuf:"bytes,2,opt,name=project_id,json=projectId,proto3" json:"project_id,omitempty" gorm:"unique"`
 	// @gotags: validate:"required"
 	WebhookUrl string `protobuf:"bytes,3,opt,name=webhook_url,json=webhookUrl,proto3" json:"webhook_url,omitempty" validate:"required"`
 	// @gotags: validate:"required"

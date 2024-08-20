@@ -12,14 +12,10 @@ message Meta {
     int64 updated_at = 3;
 }
 
-/*
-告警信息包含关键字：robot_name/cluster_name、namespace_name，根据这两个关键字，可以唯一定位一个 Project，进而查询到该项目对应的告警 endpoint
-告警信息只有关键字：robot_name/cluster_name ，则说明是集群级别的监控，直接查表得到对应的 endpoint
-*/
+
 message Spec {
-    // @gotags: validate:"required"
     string cluster_name = 1;
-    // @gotags: validate:"required" gorm:"unique"
+    // @gotags: gorm:"unique"
     string project_id = 2;
     // @gotags: validate:"required"
     string webhook_url = 3;
