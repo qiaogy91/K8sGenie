@@ -22,7 +22,7 @@ func (i *Impl) Name() string {
 }
 
 func (i *Impl) Init() error {
-	i.db = conf.C().GetMysqlPool().Debug()
+	i.db = conf.C().GetMysqlPool()
 	i.rc = ioc.GetController(rancher.AppName).(rancher.Service)
 	return nil
 }

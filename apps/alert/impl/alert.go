@@ -22,7 +22,7 @@ import (
 // 2. 调用router 进行路由查找
 // 3. 调用client 进行发送
 
-// GenSign 飞书机器人消息签名校验，使用timestamp + key 做sha256, 再进行base64 encode
+// GenSign 辅助函数，飞书机器人消息签名校验，使用timestamp + key 做sha256, 再进行base64 encode
 func (i *Impl) getSign(key string, timestamp int64) string {
 	stringToSign := fmt.Sprintf("%v", timestamp) + "\n" + key
 
@@ -34,7 +34,7 @@ func (i *Impl) getSign(key string, timestamp int64) string {
 	return signature
 }
 
-// sendCard 通过http 客户端发送请求
+// sendCard 辅助函数，通过http 客户端发送请求
 func (i *Impl) sendCard(ctx context.Context, url string, data []byte) []byte {
 	// req
 	req, _ := http.NewRequest(http.MethodPost, url, bytes.NewReader(data))
@@ -74,10 +74,10 @@ func (i *Impl) HandlerAlert(ctx context.Context, req *alert.HandlerAlertReq) (*a
 }
 
 // handler 核心
+// 1. 从告警中提取感兴趣数据
+// 2. 渲染成飞书卡片的json
+// 3. 发送给机器人 webhook
 func (i *Impl) handler(ctx context.Context, alerter *alert.Alert) ([]byte, error) {
-	fmt.Printf("当前状态:%s 开始时间:%s   结束时间:%s \n", alerter.Status, alerter.StartsAt, alerter.EndsAt)
-	fmt.Printf("标签：%+v\n", alerter.Labels)
-	fmt.Printf("注解：%+v\n", alerter.Annotations)
 
 	var (
 		webhook   string
@@ -102,8 +102,8 @@ func (i *Impl) handler(ctx context.Context, alerter *alert.Alert) ([]byte, error
 
 	// **************************** 告警内容处理 ****************************
 	switch ns, ok := alerter.Labels["namespace"]; {
+	// 存在namespace，则根据所在的ProjectID 进行路由
 	case ok:
-		// 存在namespace
 		rsp, err := i.k.DescNamespace(ctx, &k8s.DescNamespaceReq{ClusterName: alerter.Labels["robot_name"], NamespaceName: ns})
 		if err != nil {
 			common.L().Error().Msgf("ns/%s can not trigger alerter, because project not found", ns)
@@ -130,8 +130,8 @@ func (i *Impl) handler(ctx context.Context, alerter *alert.Alert) ([]byte, error
 		sign = i.getSign(rs.Items[0].Spec.WebhookToken, timestamp)
 		webhook = rs.Items[0].Spec.WebhookUrl
 
+	// 不存在namespace，则根据robotName 进行路由
 	default:
-		// 不存在namespace
 		content = fmt.Sprintf(
 			`**告警名称：**%s\n**告警级别：**%s\n**故障描述：**%s\n**故障详情：**%s\n`,
 			alerter.Labels["alertname"],
