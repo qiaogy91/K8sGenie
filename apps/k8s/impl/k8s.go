@@ -3,45 +3,22 @@ package impl
 import (
 	"context"
 	"errors"
-	"gitee.com/qiaogy91/InfraGenie/apps/resourcer"
+	"fmt"
 	"gitee.com/qiaogy91/K8sGenie/apps/k8s"
+	"gitee.com/qiaogy91/K8sGenie/apps/rancher"
 	"gitee.com/qiaogy91/K8sGenie/common"
 	cv1 "k8s.io/api/core/v1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
+	"sort"
 	"time"
 )
 
-func (i *Impl) TableCreate(ctx context.Context, empty *k8s.Empty) (*k8s.Empty, error) {
-	if err := i.db.WithContext(ctx).AutoMigrate(&resourcer.Project{}, &k8s.WorkLoad{}); err != nil {
+func (i *Impl) CreateTable(ctx context.Context, empty *k8s.Empty) (*k8s.Empty, error) {
+	if err := i.db.WithContext(ctx).AutoMigrate(&k8s.WorkLoad{}); err != nil {
 		return nil, err
 	}
 	return nil, nil
-}
-
-// SyncRancherProject 同步所有项目信息到DB
-func (i *Impl) SyncRancherProject(ctx context.Context) error {
-	// 每次都是重新获取数据，确保数据与当前完全一致
-	i.db.Exec("TRUNCATE TABLE projects")
-	i.db.Exec("ALTER TABLE projects AUTO_INCREMENT = 1")
-
-	stream, err := i.rc.RancherResourceSync(ctx, nil)
-	if err != nil {
-		return err
-	}
-
-	for {
-		rsp, err := stream.Recv()
-		if err != nil {
-			common.L().Error().Msgf("stream recv err: %v", err)
-			break
-		}
-		if err := i.db.WithContext(ctx).Create(rsp).Error; err != nil {
-			return err
-		}
-	}
-	common.L().Info().Msgf("recv finished")
-	return nil
 }
 
 // SyncK8SWorkload 将Kubernetes 数据同步到DB
@@ -76,19 +53,28 @@ func (i *Impl) handler(ctx context.Context, c *kubernetes.Clientset, stream k8s.
 
 	for _, ns := range nsSet.Items {
 		// 1. 获取名称空间的注解
-		pid, ok := ns.Annotations["field.cattle.io/projectId"]
+		annotation, ok := ns.Annotations["field.cattle.io/projectId"]
 		if !ok {
 			common.L().Info().Msgf("K8SResourceSync namespace has no annotation, %s", ns.Name)
 			continue
 		}
 
 		// 2. 根据注解信息查找项目
-		pro, err := i.DescRancherProject(ctx, &k8s.DescRancherProjectReq{ProjectID: pid, DescType: k8s.FromProjectID})
+		res, err := i.rc.QueryProject(ctx, &rancher.QueryProjectReq{
+			SearchType: rancher.SEARCH_TYPE_SEARCH_TYPE_ANNOTATION,
+			KeyWord:    annotation,
+		})
 		if err != nil {
+			common.L().Info().Msgf("no such project, %s , %v", ns.Name, err)
+			continue
+		}
+
+		if res.Total == 0 {
 			common.L().Info().Msgf("K8SResourceSync namespace has no projectId, %s , %v", ns.Name, err)
 			continue
 		}
 
+		pro := res.Items[0]
 		// - 处理 deployment
 		if err := i.handlerDeployment(ctx, c, pro, ns, stream); err != nil {
 			return err
@@ -107,7 +93,7 @@ func (i *Impl) handler(ctx context.Context, c *kubernetes.Clientset, stream k8s.
 	return nil
 }
 
-func (i *Impl) handlerDeployment(ctx context.Context, c *kubernetes.Clientset, pro *resourcer.Project, ns cv1.Namespace, stream k8s.Rpc_SyncK8SWorkloadServer) error {
+func (i *Impl) handlerDeployment(ctx context.Context, c *kubernetes.Clientset, pro *rancher.Project, ns cv1.Namespace, stream k8s.Rpc_SyncK8SWorkloadServer) error {
 	// 3. 如果存在，则遍历该名称空间下所有dep，进行统计计算
 	deps, err := c.AppsV1().Deployments(ns.Name).List(ctx, v1.ListOptions{})
 	if err != nil {
@@ -146,7 +132,7 @@ func (i *Impl) handlerDeployment(ctx context.Context, c *kubernetes.Clientset, p
 	return nil
 }
 
-func (i *Impl) handlerDaemonSet(ctx context.Context, c *kubernetes.Clientset, pro *resourcer.Project, ns cv1.Namespace, stream k8s.Rpc_SyncK8SWorkloadServer) error {
+func (i *Impl) handlerDaemonSet(ctx context.Context, c *kubernetes.Clientset, pro *rancher.Project, ns cv1.Namespace, stream k8s.Rpc_SyncK8SWorkloadServer) error {
 	// 获取节点数量
 	nodes, err := c.CoreV1().Nodes().List(ctx, v1.ListOptions{})
 	if err != nil {
@@ -192,7 +178,7 @@ func (i *Impl) handlerDaemonSet(ctx context.Context, c *kubernetes.Clientset, pr
 	return nil
 }
 
-func (i *Impl) handlerStatefulSet(ctx context.Context, c *kubernetes.Clientset, pro *resourcer.Project, ns cv1.Namespace, stream k8s.Rpc_SyncK8SWorkloadServer) error {
+func (i *Impl) handlerStatefulSet(ctx context.Context, c *kubernetes.Clientset, pro *rancher.Project, ns cv1.Namespace, stream k8s.Rpc_SyncK8SWorkloadServer) error {
 	// 1. 如果存在，则遍历该名称空间下所有sts，进行统计计算
 	sts, err := c.AppsV1().StatefulSets(ns.Name).List(ctx, v1.ListOptions{})
 	if err != nil {
@@ -231,42 +217,84 @@ func (i *Impl) handlerStatefulSet(ctx context.Context, c *kubernetes.Clientset, 
 	return nil
 }
 
-// DescRancherProject 根据名称空间，反查项目
-func (i *Impl) DescRancherProject(ctx context.Context, req *k8s.DescRancherProjectReq) (*resourcer.Project, error) {
-	switch req.DescType {
-	case k8s.FromProjectID:
-		ins := &resourcer.Project{}
-		if err := i.db.WithContext(ctx).Model(&resourcer.Project{}).Where("project_id = ?", req.ProjectID).First(ins).Error; err != nil {
-			return nil, err
-		}
-		return ins, nil
-
-	case k8s.FromClusterAndNamespace:
-		// 获取集群客户端
-		c, ok := i.cs[req.ClusterName]
-		if !ok {
-			return nil, errors.New("no such cluster")
-		}
-
-		// 找到名称空间对象
-		ns, err := c.CoreV1().Namespaces().Get(ctx, req.Namespace, v1.GetOptions{})
-		if err != nil {
-			return nil, err
-		}
-		// 获取注解
-		pid, ok := ns.Annotations["field.cattle.io/projectId"]
-		if !ok {
-			return nil, errors.New("not belong to any project")
-		}
-
-		// 查找Project
-		ins := &resourcer.Project{}
-		if err := i.db.WithContext(ctx).Model(&resourcer.Project{}).Where("project_id = ?", pid).First(ins).Error; err != nil {
-			return nil, err
-		}
-		return ins, nil
+// DescNamespace 根据名称空间，反查项目
+func (i *Impl) DescNamespace(ctx context.Context, req *k8s.DescNamespaceReq) (*k8s.DescNamespaceRsp, error) {
+	// 获取集群客户端
+	c, ok := i.cs[req.ClusterName]
+	if !ok {
+		return nil, errors.New("no such cluster")
 	}
 
-	return nil, errors.New("search type err")
+	// 找到名称空间对象
+	ns, err := c.CoreV1().Namespaces().Get(ctx, req.NamespaceName, v1.GetOptions{})
+	if err != nil {
+		return nil, err
+	}
 
+	// 获取注解
+	pid, ok := ns.Annotations["field.cattle.io/projectId"]
+	if !ok {
+		return nil, errors.New("not belong to any project")
+	}
+
+	// 查找Project
+	ins := &k8s.DescNamespaceRsp{NamespaceName: req.NamespaceName}
+
+	if err := i.db.WithContext(ctx).Model(&rancher.Project{}).Where("project_id = ?", pid).First(&ins.Project).Error; err != nil {
+		return nil, err
+	}
+	return ins, nil
+}
+
+// GetPodRamUsage 获取资源利用率前10的pod
+func (i *Impl) GetPodRamUsage(ctx context.Context, req *k8s.GetPodRamUsageReq) (*k8s.GetPodRamUsageRsp, error) {
+	mc, ok := i.ms[req.ClusterName]
+	cc, ok := i.cs[req.ClusterName]
+
+	if !ok {
+		return nil, fmt.Errorf("cluster name err: %s", req.ClusterName)
+	}
+
+	// 获取节点 10.0.0.100 上的所有 Pod
+	pods, err := cc.CoreV1().Pods("").List(ctx, v1.ListOptions{FieldSelector: fmt.Sprintf("spec.nodeName=%s", req.NodeName)})
+	if err != nil {
+		return nil, err
+	}
+
+	// 获取这些 Pod 的 metrics
+	ins := &k8s.GetPodRamUsageRsp{}
+
+	for _, pod := range pods.Items {
+
+		podMetrics, err := mc.MetricsV1beta1().PodMetricses(pod.Namespace).Get(ctx, pod.Name, v1.GetOptions{})
+		if err != nil {
+			common.L().Error().Msgf("Error getting metrics for pod %s: %v", pod.Name, err)
+			continue
+		}
+
+		for _, c := range podMetrics.Containers {
+			ins.Items = append(ins.Items, &k8s.PodMetricDetail{
+				PodName:       pod.Name,
+				NamespaceName: pod.Namespace,
+				CpuCores:      c.Usage.Cpu().MilliValue(),
+				RamMbi:        c.Usage.Memory().Value() / 1024 / 1024,
+			})
+			ins.Count += 1
+		}
+	}
+
+	sort.Sort(ins)
+	return ins, nil
+}
+
+func (i *Impl) KillTop1Pod(ctx context.Context, req *k8s.KillTop1PodReq) (*k8s.KillTop1PodRsp, error) {
+	cc, ok := i.cs[req.ClusterName]
+	if !ok {
+		return nil, fmt.Errorf("cluster name err: %s", req.ClusterName)
+	}
+
+	if err := cc.CoreV1().Pods(req.NamespaceName).Delete(ctx, req.PodName, v1.DeleteOptions{}); err != nil {
+		return nil, err
+	}
+	return nil, nil
 }

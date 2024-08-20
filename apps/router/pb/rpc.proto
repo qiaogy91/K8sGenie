@@ -1,12 +1,47 @@
 syntax = "proto3";
+
 package K8sGenie.router;
+
+import "apps/router/pb/model.proto";
+
 option go_package = "gitee.com/qiaogy91/K8sGenie/apps/router";
 
 
+message Empty {}
 
 service Rpc {
-    // 1. 维护告警路由表 CURD
+    rpc CreateTable (Empty) returns (Empty);
 
-
-    // 1. 发送告警（根据告警信息，能够判断应该发往哪个群组的 webhook，并发送）
+    rpc CreateRoute (Spec) returns (Router);
+    rpc DeleteRoute (DeleteRouteReq) returns (Router);
+    rpc QueryRoute (QueryRouteReq) returns (RouterSet);
 }
+
+message DescRouteReq {
+    // @gotags: validate:"required"
+    string id = 1;
+}
+message DeleteRouteReq {
+    // @gotags: validate:"required"
+    string id = 1;
+}
+
+
+enum SEARCH_TYPE {
+    SEARCH_TYPE_UNSPECIFIED = 0;
+    SEARCH_TYPE_ROUTER_ID = 1;
+    SEARCH_TYPE_CLUSTER_NAME = 2;
+    SEARCH_TYPE_PROJECT_CODE = 3;
+    SEARCH_TYPE_PROJECT_LINE = 4;
+    SEARCH_TYPE_PROJECT_DESC = 5;
+    SEARCH_TYPE_PROJECT_ID = 6;
+}
+
+message QueryRouteReq {
+    SEARCH_TYPE search_type = 1;
+    string key_word = 2;
+}
+
+
+
+

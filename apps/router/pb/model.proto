@@ -1,27 +1,36 @@
 syntax = "proto3";
+
 package K8sGenie.router;
+
 option go_package = "gitee.com/qiaogy91/K8sGenie/apps/router";
 
-enum TYPE {
-    TYPE_UNSPECIFIED = 0;
-    TYPE_CLUSTER_SCOPE = 1;
-    TYPE_PROJECT_SCOPE = 2;
-}
-message Meta{
+message Meta {
     int64 id = 1;
+    // @gotags: gorm:"autoCreateTime"
     int64 created_at = 2;
+    // @gotags: gorm:"autoUpdateTime"
     int64 updated_at = 3;
 }
 
+
 message Spec {
-    TYPE notify_type = 1;
-    string robot_name = 2;
-    string project_id = 3;
-    string webhook_url = 4;
-    string webhook_token = 5;
+    string cluster_name = 1;
+    // @gotags: gorm:"unique"
+    string project_id = 2;
+    // @gotags: validate:"required"
+    string webhook_url = 3;
+    // @gotags: validate:"required"
+    string webhook_token = 4;
 }
 
 message Router {
+    // @gotags: json:"meta" gorm:"embedded"
     Meta meta = 1;
+    // @gotags: json:"spec" gorm:"embedded"
     Spec spec = 2;
+}
+
+message RouterSet {
+    int64 total = 1;
+    repeated Router items = 2;
 }

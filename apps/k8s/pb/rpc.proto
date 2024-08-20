@@ -1,12 +1,55 @@
 syntax = "proto3";
+
 package K8sGenie.k8s;
 
 import "apps/k8s/pb/model.proto";
+import "apps/rancher/pb/model.proto";
 
 option go_package = "gitee.com/qiaogy91/K8sGenie/apps/k8s";
 
 
 service Rpc {
-    rpc TableCreate(Empty)returns (Empty);
-    rpc SyncK8sWorkload(Empty)returns (stream WorkLoad);
+    rpc CreateTable (Empty) returns (Empty);
+    rpc SyncK8sWorkload (Empty) returns (stream WorkLoad);
+    rpc DescNamespace (DescNamespaceReq) returns (DescNamespaceRsp);
+    // 自愈方法
+    rpc GetPodRamUsage (GetPodRamUsageReq) returns (GetPodRamUsageRsp);
+    rpc KillTop1Pod (KillTop1PodReq) returns (KillTop1PodRsp);
+}
+
+
+message DescNamespaceReq {
+    string cluster_name = 1;
+    string namespace_name = 2;
+}
+
+message DescNamespaceRsp {
+    string namespace_name = 1;
+    resourcer.Project project = 2;
+}
+
+message GetPodRamUsageReq {
+    string cluster_name = 1;
+    string node_name = 2;
+}
+
+message GetPodRamUsageRsp {
+    int64 count = 1;
+    repeated PodMetricDetail items = 2;
+}
+
+message PodMetricDetail {
+    string namespace_name = 1;
+    string pod_name = 2;
+    int64 cpu_cores = 3;
+    int64 ram_mbi = 4;
+}
+
+message KillTop1PodReq {
+    string cluster_name = 1;
+    string namespace_name = 2;
+    string pod_name = 3;
+}
+
+message KillTop1PodRsp {
 }
