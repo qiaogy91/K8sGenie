@@ -14,6 +14,7 @@ import (
 	"io"
 	"k8s.io/apimachinery/pkg/util/json"
 	"net/http"
+	"strings"
 	"time"
 )
 
@@ -56,6 +57,7 @@ func (i *Impl) sendCard(ctx context.Context, url string, data []byte) []byte {
 func (i *Impl) HandlerAlert(ctx context.Context, req *alert.HandlerAlertReq) (*alert.HandlerAlertRsp, error) {
 	rsp := &alert.HandlerAlertRsp{}
 	for _, alter := range req.Alerts {
+		// 通过机器人发送到飞书群组
 		res, err := i.handler(ctx, alter)
 		if err != nil {
 			common.L().Error().Msgf("handlerAlert err: %v", err)
@@ -68,6 +70,19 @@ func (i *Impl) HandlerAlert(ctx context.Context, req *alert.HandlerAlertReq) (*a
 			continue
 		}
 		rsp.Rsp = append(rsp.Rsp, response)
+
+		// 通过K8S 触发自愈操作
+		actions, ok := alter.Labels["actions"]
+		if !ok {
+			continue
+		}
+		for _, action := range strings.Split(actions, ",") {
+			if err := i.RecoveryAction(ctx, alter, action); err != nil {
+				common.L().Error().Msgf("RecoveryAction failed: %v", err)
+				continue
+			}
+		}
+
 	}
 	// 返回给 AlertManager 的响应
 	return rsp, nil
@@ -151,4 +166,28 @@ func (i *Impl) handler(ctx context.Context, alerter *alert.Alert) ([]byte, error
 	// **************************** 卡片模板渲染 ****************************
 	card := fmt.Sprintf(alert.CardTemplate, timestamp, sign, content, footer, color, header)
 	return i.sendCard(ctx, webhook, []byte(card)), nil
+}
+
+// RecoveryAction 集群自愈操作
+func (i *Impl) RecoveryAction(ctx context.Context, req *alert.Alert, action string) error {
+	switch action {
+	case "GetPodRamUsage":
+		in := &k8s.GetPodRamUsageReq{
+			ClusterName: "",
+			NodeName:    "",
+		}
+		_, err := i.k.GetPodRamUsage(ctx, in)
+		if err != nil {
+			return err
+		}
+
+	case "kill_pod":
+		in := &k8s.KillTop1PodReq{
+			ClusterName:   "",
+			NamespaceName: "",
+			PodName:       "",
+		}
+		i.k.KillTop1Pod(ctx, in)
+	}
+	return nil
 }

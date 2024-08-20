@@ -56,7 +56,7 @@ func TestImpl_DescNamespace(t *testing.T) {
 func TestImpl_GetPodRamUsage(t *testing.T) {
 	req := &k8s.GetPodRamUsageReq{
 		ClusterName: "itcp-k8s-prd",
-		NodeName:    "itcp-k8s-prd-worker-07",
+		NodeName:    "itcp-k8s-prd-worker-02",
 	}
 	ins, err := c.GetPodRamUsage(ctx, req)
 	if err != nil {
@@ -65,5 +65,16 @@ func TestImpl_GetPodRamUsage(t *testing.T) {
 
 	for _, item := range ins.Items {
 		t.Logf("%+v", item)
+	}
+}
+
+func TestImpl_KillTop1Pod(t *testing.T) {
+	req := &k8s.KillTop1PodReq{
+		ClusterName:   "itcp-k8s-uat",
+		NamespaceName: "itcp-test",
+		PodName:       "client-nz9fd",
+	}
+	if _, err := c.KillTop1Pod(ctx, req); err != nil {
+		t.Fatal(err)
 	}
 }

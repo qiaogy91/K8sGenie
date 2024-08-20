@@ -286,3 +286,15 @@ func (i *Impl) GetPodRamUsage(ctx context.Context, req *k8s.GetPodRamUsageReq) (
 	sort.Sort(ins)
 	return ins, nil
 }
+
+func (i *Impl) KillTop1Pod(ctx context.Context, req *k8s.KillTop1PodReq) (*k8s.KillTop1PodRsp, error) {
+	cc, ok := i.cs[req.ClusterName]
+	if !ok {
+		return nil, fmt.Errorf("cluster name err: %s", req.ClusterName)
+	}
+
+	if err := cc.CoreV1().Pods(req.NamespaceName).Delete(ctx, req.PodName, v1.DeleteOptions{}); err != nil {
+		return nil, err
+	}
+	return nil, nil
+}
