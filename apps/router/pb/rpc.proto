@@ -14,7 +14,7 @@ service Rpc {
 
     rpc CreateRoute (Spec) returns (Router);
     rpc DeleteRoute (DeleteRouteReq) returns (Router);
-    rpc QueryRoute (QueryRouteReq) returns (RouterSet);
+    rpc DescRoute (QueryRouteReq) returns (Router);
 }
 
 message DescRouteReq {
@@ -26,20 +26,9 @@ message DeleteRouteReq {
     string id = 1;
 }
 
-
-enum SEARCH_TYPE {
-    SEARCH_TYPE_UNSPECIFIED = 0;
-    SEARCH_TYPE_ROUTER_ID = 1;
-    SEARCH_TYPE_CLUSTER_NAME = 2;
-    SEARCH_TYPE_PROJECT_CODE = 3;
-    SEARCH_TYPE_PROJECT_LINE = 4;
-    SEARCH_TYPE_PROJECT_DESC = 5;
-    SEARCH_TYPE_PROJECT_ID = 6;
-}
-
 message QueryRouteReq {
-    SEARCH_TYPE search_type = 1;
-    string key_word = 2;
+    TYPE type = 1;
+    string identity = 2;
 }
 
 

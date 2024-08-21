@@ -26,13 +26,15 @@ func TestImpl_CreateTable(t *testing.T) {
 func TestImpl_CreateRoute(t *testing.T) {
 	// 集群级别告警
 	req1 := &router.Spec{
-		ClusterName:  "itcp-k8s-uat",
+		Type:         router.TYPE_TYPE_CLUSTER,
+		Identity:     "itcp-k8s-uat",
 		WebhookUrl:   "https://open.rwork.crc.com.cn/open-apis/bot/v2/hook/680fc048-24d8-413d-a3c2-4d0297e66048",
 		WebhookToken: "DUJbdqoPWa94mBdsD6HSfb",
 	}
 	// 项目级别告警
 	req2 := &router.Spec{
-		ProjectId:    "c-m-nnljl7c9:p-76q6t",
+		Type:         router.TYPE_TYPE_PROJECT,
+		Identity:     "c-m-nnljl7c9:p-76q6t",
 		WebhookUrl:   "https://open.rwork.crc.com.cn/open-apis/bot/v2/hook/395fb852-7884-45da-880c-e2290ad2698e",
 		WebhookToken: "w8mKUHSZi4nEoMRqvVtFCb",
 	}
@@ -55,15 +57,11 @@ func TestImpl_DeleteRoute(t *testing.T) {
 
 func TestImpl_QueryRoute(t *testing.T) {
 	req := &router.QueryRouteReq{
-		//SearchType: router.SEARCH_TYPE_SEARCH_TYPE_ROUTER_ID,
-		//SearchType: router.SEARCH_TYPE_SEARCH_TYPE_CLUSTER_NAME,
-		//SearchType: router.SEARCH_TYPE_SEARCH_TYPE_PROJECT_LINE,
-		SearchType: router.SEARCH_TYPE_SEARCH_TYPE_PROJECT_ID,
-		//SearchType: router.SEARCH_TYPE_SEARCH_TYPE_PROJECT_DESC,
-		KeyWord: "c-m-nnljl7c9:p-76q6t",
+		Type: router.TYPE_TYPE_PROJECT,
+		//Identity: "itcp-k8s-uat",
+		Identity: "c-m-nnljl7c9:p-76q6t",
 	}
-
-	ins, err := c.QueryRoute(ctx, req)
+	ins, err := c.DescRoute(ctx, req)
 	if err != nil {
 		t.Fatal(err)
 	}
