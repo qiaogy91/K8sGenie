@@ -22,7 +22,7 @@ const (
 	Rpc_CreateTable_FullMethodName = "/K8sGenie.router.Rpc/CreateTable"
 	Rpc_CreateRoute_FullMethodName = "/K8sGenie.router.Rpc/CreateRoute"
 	Rpc_DeleteRoute_FullMethodName = "/K8sGenie.router.Rpc/DeleteRoute"
-	Rpc_DescRoute_FullMethodName   = "/K8sGenie.router.Rpc/DescRoute"
+	Rpc_AlertRoute_FullMethodName  = "/K8sGenie.router.Rpc/AlertRoute"
 )
 
 // RpcClient is the client API for Rpc service.
@@ -32,7 +32,8 @@ type RpcClient interface {
 	CreateTable(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*Empty, error)
 	CreateRoute(ctx context.Context, in *Spec, opts ...grpc.CallOption) (*Router, error)
 	DeleteRoute(ctx context.Context, in *DeleteRouteReq, opts ...grpc.CallOption) (*Router, error)
-	DescRoute(ctx context.Context, in *QueryRouteReq, opts ...grpc.CallOption) (*Router, error)
+	// 告警路由
+	AlertRoute(ctx context.Context, in *AlertRouteReq, opts ...grpc.CallOption) (*Router, error)
 }
 
 type rpcClient struct {
@@ -70,9 +71,9 @@ func (c *rpcClient) DeleteRoute(ctx context.Context, in *DeleteRouteReq, opts ..
 	return out, nil
 }
 
-func (c *rpcClient) DescRoute(ctx context.Context, in *QueryRouteReq, opts ...grpc.CallOption) (*Router, error) {
+func (c *rpcClient) AlertRoute(ctx context.Context, in *AlertRouteReq, opts ...grpc.CallOption) (*Router, error) {
 	out := new(Router)
-	err := c.cc.Invoke(ctx, Rpc_DescRoute_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, Rpc_AlertRoute_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -86,7 +87,8 @@ type RpcServer interface {
 	CreateTable(context.Context, *Empty) (*Empty, error)
 	CreateRoute(context.Context, *Spec) (*Router, error)
 	DeleteRoute(context.Context, *DeleteRouteReq) (*Router, error)
-	DescRoute(context.Context, *QueryRouteReq) (*Router, error)
+	// 告警路由
+	AlertRoute(context.Context, *AlertRouteReq) (*Router, error)
 	mustEmbedUnimplementedRpcServer()
 }
 
@@ -103,8 +105,8 @@ func (UnimplementedRpcServer) CreateRoute(context.Context, *Spec) (*Router, erro
 func (UnimplementedRpcServer) DeleteRoute(context.Context, *DeleteRouteReq) (*Router, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteRoute not implemented")
 }
-func (UnimplementedRpcServer) DescRoute(context.Context, *QueryRouteReq) (*Router, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method DescRoute not implemented")
+func (UnimplementedRpcServer) AlertRoute(context.Context, *AlertRouteReq) (*Router, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AlertRoute not implemented")
 }
 func (UnimplementedRpcServer) mustEmbedUnimplementedRpcServer() {}
 
@@ -173,20 +175,20 @@ func _Rpc_DeleteRoute_Handler(srv interface{}, ctx context.Context, dec func(int
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Rpc_DescRoute_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(QueryRouteReq)
+func _Rpc_AlertRoute_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AlertRouteReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(RpcServer).DescRoute(ctx, in)
+		return srv.(RpcServer).AlertRoute(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Rpc_DescRoute_FullMethodName,
+		FullMethod: Rpc_AlertRoute_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(RpcServer).DescRoute(ctx, req.(*QueryRouteReq))
+		return srv.(RpcServer).AlertRoute(ctx, req.(*AlertRouteReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -211,8 +213,8 @@ var Rpc_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Rpc_DeleteRoute_Handler,
 		},
 		{
-			MethodName: "DescRoute",
-			Handler:    _Rpc_DescRoute_Handler,
+			MethodName: "AlertRoute",
+			Handler:    _Rpc_AlertRoute_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

@@ -26,14 +26,12 @@ func TestImpl_CreateTable(t *testing.T) {
 func TestImpl_CreateRoute(t *testing.T) {
 	// 集群级别告警
 	req1 := &router.Spec{
-		Type:         router.TYPE_TYPE_CLUSTER,
 		Identity:     "itcp-k8s-uat",
 		WebhookUrl:   "https://open.rwork.crc.com.cn/open-apis/bot/v2/hook/680fc048-24d8-413d-a3c2-4d0297e66048",
 		WebhookToken: "DUJbdqoPWa94mBdsD6HSfb",
 	}
 	// 项目级别告警
 	req2 := &router.Spec{
-		Type:         router.TYPE_TYPE_PROJECT,
 		Identity:     "c-m-nnljl7c9:p-76q6t",
 		WebhookUrl:   "https://open.rwork.crc.com.cn/open-apis/bot/v2/hook/395fb852-7884-45da-880c-e2290ad2698e",
 		WebhookToken: "w8mKUHSZi4nEoMRqvVtFCb",
@@ -55,16 +53,14 @@ func TestImpl_DeleteRoute(t *testing.T) {
 	t.Logf("%+v", ins)
 }
 
-func TestImpl_QueryRoute(t *testing.T) {
-	req := &router.QueryRouteReq{
-		Type: router.TYPE_TYPE_PROJECT,
-		//Identity: "itcp-k8s-uat",
-		Identity: "c-m-nnljl7c9:p-76q6t",
+func TestImpl_AlertRoute(t *testing.T) {
+	req := &router.AlertRouteReq{
+		RobotName:     "itcp-k8s-uat",
+		NamespaceName: "crc-yourh-dev",
 	}
-	ins, err := c.DescRoute(ctx, req)
+	ins, err := c.AlertRoute(ctx, req)
 	if err != nil {
 		t.Fatal(err)
 	}
-
 	t.Logf("%+v", ins)
 }

@@ -12,18 +12,7 @@ message Meta {
     int64 updated_at = 3;
 }
 
-
-enum TYPE {
-    TYPE_UNSPECIFIED = 0;
-    TYPE_CLUSTER = 1;
-    TYPE_PROJECT = 2;
-    TYPE_EXTERNAL = 3;
-    TYPE_DEFAULT = 4;
-}
-
 message Spec {
-    // @gotags: validate:"required"
-    TYPE type = 1;
     // @gotags: validate:"required"
     string identity = 2;
     // @gotags: validate:"required"
@@ -37,9 +26,4 @@ message Router {
     Meta meta = 1;
     // @gotags: json:"spec" gorm:"embedded"
     Spec spec = 2;
-}
-
-message RouterSet {
-    int64 total = 1;
-    repeated Router items = 2;
 }

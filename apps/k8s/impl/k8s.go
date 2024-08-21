@@ -218,7 +218,7 @@ func (i *Impl) handlerStatefulSet(ctx context.Context, c *kubernetes.Clientset, 
 }
 
 // DescNamespace 根据名称空间，反查项目
-func (i *Impl) DescNamespace(ctx context.Context, req *k8s.DescNamespaceReq) (*k8s.DescNamespaceRsp, error) {
+func (i *Impl) DescNamespace(ctx context.Context, req *k8s.DescNamespaceReq) (*rancher.Project, error) {
 	// 获取集群客户端
 	c, ok := i.cs[req.ClusterName]
 	if !ok {
@@ -238,9 +238,8 @@ func (i *Impl) DescNamespace(ctx context.Context, req *k8s.DescNamespaceReq) (*k
 	}
 
 	// 查找Project
-	ins := &k8s.DescNamespaceRsp{NamespaceName: req.NamespaceName}
-
-	if err := i.db.WithContext(ctx).Model(&rancher.Project{}).Where("project_id = ?", pid).First(&ins.Project).Error; err != nil {
+	ins := &rancher.Project{}
+	if err := i.db.WithContext(ctx).Model(&rancher.Project{}).Where("project_id = ?", pid).First(&ins).Error; err != nil {
 		return nil, err
 	}
 	return ins, nil
