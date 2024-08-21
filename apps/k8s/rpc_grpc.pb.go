@@ -8,6 +8,7 @@ package k8s
 
 import (
 	context "context"
+	rancher "gitee.com/qiaogy91/K8sGenie/apps/rancher"
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
@@ -32,7 +33,7 @@ const (
 type RpcClient interface {
 	CreateTable(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*Empty, error)
 	SyncK8SWorkload(ctx context.Context, in *Empty, opts ...grpc.CallOption) (Rpc_SyncK8SWorkloadClient, error)
-	DescNamespace(ctx context.Context, in *DescNamespaceReq, opts ...grpc.CallOption) (*DescNamespaceRsp, error)
+	DescNamespace(ctx context.Context, in *DescNamespaceReq, opts ...grpc.CallOption) (*rancher.Project, error)
 	// 自愈方法
 	GetPodRamUsage(ctx context.Context, in *GetPodRamUsageReq, opts ...grpc.CallOption) (*GetPodRamUsageRsp, error)
 	KillTop1Pod(ctx context.Context, in *KillTop1PodReq, opts ...grpc.CallOption) (*KillTop1PodRsp, error)
@@ -87,8 +88,8 @@ func (x *rpcSyncK8SWorkloadClient) Recv() (*WorkLoad, error) {
 	return m, nil
 }
 
-func (c *rpcClient) DescNamespace(ctx context.Context, in *DescNamespaceReq, opts ...grpc.CallOption) (*DescNamespaceRsp, error) {
-	out := new(DescNamespaceRsp)
+func (c *rpcClient) DescNamespace(ctx context.Context, in *DescNamespaceReq, opts ...grpc.CallOption) (*rancher.Project, error) {
+	out := new(rancher.Project)
 	err := c.cc.Invoke(ctx, Rpc_DescNamespace_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -120,7 +121,7 @@ func (c *rpcClient) KillTop1Pod(ctx context.Context, in *KillTop1PodReq, opts ..
 type RpcServer interface {
 	CreateTable(context.Context, *Empty) (*Empty, error)
 	SyncK8SWorkload(*Empty, Rpc_SyncK8SWorkloadServer) error
-	DescNamespace(context.Context, *DescNamespaceReq) (*DescNamespaceRsp, error)
+	DescNamespace(context.Context, *DescNamespaceReq) (*rancher.Project, error)
 	// 自愈方法
 	GetPodRamUsage(context.Context, *GetPodRamUsageReq) (*GetPodRamUsageRsp, error)
 	KillTop1Pod(context.Context, *KillTop1PodReq) (*KillTop1PodRsp, error)
@@ -137,7 +138,7 @@ func (UnimplementedRpcServer) CreateTable(context.Context, *Empty) (*Empty, erro
 func (UnimplementedRpcServer) SyncK8SWorkload(*Empty, Rpc_SyncK8SWorkloadServer) error {
 	return status.Errorf(codes.Unimplemented, "method SyncK8SWorkload not implemented")
 }
-func (UnimplementedRpcServer) DescNamespace(context.Context, *DescNamespaceReq) (*DescNamespaceRsp, error) {
+func (UnimplementedRpcServer) DescNamespace(context.Context, *DescNamespaceReq) (*rancher.Project, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DescNamespace not implemented")
 }
 func (UnimplementedRpcServer) GetPodRamUsage(context.Context, *GetPodRamUsageReq) (*GetPodRamUsageRsp, error) {

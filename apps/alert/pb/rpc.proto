@@ -16,7 +16,9 @@ message HandlerAlertReq {
 
 message Alert {
     string status = 1;
+    // @gotags: json:"startsAt"
     string starts_at = 2;
+    // @gotags: json:"endsAt"
     string ends_at = 3;
     map<string, string> labels = 4;
     map<string, string> annotations = 5;

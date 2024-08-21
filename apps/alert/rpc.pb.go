@@ -72,9 +72,11 @@ type Alert struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	Status      string            `protobuf:"bytes,1,opt,name=status,proto3" json:"status,omitempty"`
-	StartsAt    string            `protobuf:"bytes,2,opt,name=starts_at,json=startsAt,proto3" json:"starts_at,omitempty"`
-	EndsAt      string            `protobuf:"bytes,3,opt,name=ends_at,json=endsAt,proto3" json:"ends_at,omitempty"`
+	Status string `protobuf:"bytes,1,opt,name=status,proto3" json:"status,omitempty"`
+	// @gotags: json:"startsAt"
+	StartsAt string `protobuf:"bytes,2,opt,name=starts_at,json=startsAt,proto3" json:"startsAt"`
+	// @gotags: json:"endsAt"
+	EndsAt      string            `protobuf:"bytes,3,opt,name=ends_at,json=endsAt,proto3" json:"endsAt"`
 	Labels      map[string]string `protobuf:"bytes,4,rep,name=labels,proto3" json:"labels,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
 	Annotations map[string]string `protobuf:"bytes,5,rep,name=annotations,proto3" json:"annotations,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
 }

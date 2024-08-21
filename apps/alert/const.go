@@ -1,14 +1,10 @@
 package alert
 
-/*
-集群级告警：
-	webhook: "https://open.rwork.crc.com.cn/open-apis/bot/v2/hook/327a89a7-cce9-42f9-8dfe-2deb8b4413b7"
-    key: "l2Dgny5nI48ZMcqDl8wbrh"
-
-产线级告警：
-	webhook: "https://open.rwork.crc.com.cn/open-apis/bot/v2/hook/395fb852-7884-45da-880c-e2290ad2698e"
-	key: “w8mKUHSZi4nEoMRqvVtFCb”
-*/
+const (
+	NamespaceContent        = `**告警名称：**%s\n**告警级别：**%s\n**告警集群：**%s\n**所属产线：**%s\n**项目名称：**%s\n**项目编码：**%s\n**名称空间：**%s\n**故障描述：**%s\n**故障详情：**%s\n`
+	ClusterContent          = `**告警名称：**%s\n**告警级别：**%s\n**故障描述：**%s\n**故障详情：**%s\n`
+	NamespaceWithoutProject = `**告警名称：**%s\n**告警级别：**%s\n**告警集群：**%s\n**名称空间：**%s\n**故障描述：**%s\n**故障详情：**%s\n`
+)
 
 const CardTemplate = `{
     "timestamp": %d,

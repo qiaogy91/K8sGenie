@@ -14,34 +14,19 @@ service Rpc {
 
     rpc CreateRoute (Spec) returns (Router);
     rpc DeleteRoute (DeleteRouteReq) returns (Router);
-    rpc QueryRoute (QueryRouteReq) returns (RouterSet);
+
+    // 告警路由
+    rpc AlertRoute (AlertRouteReq) returns (Router);
 }
 
-message DescRouteReq {
-    // @gotags: validate:"required"
-    string id = 1;
-}
 message DeleteRouteReq {
     // @gotags: validate:"required"
     string id = 1;
 }
 
-
-enum SEARCH_TYPE {
-    SEARCH_TYPE_UNSPECIFIED = 0;
-    SEARCH_TYPE_ROUTER_ID = 1;
-    SEARCH_TYPE_CLUSTER_NAME = 2;
-    SEARCH_TYPE_PROJECT_CODE = 3;
-    SEARCH_TYPE_PROJECT_LINE = 4;
-    SEARCH_TYPE_PROJECT_DESC = 5;
-    SEARCH_TYPE_PROJECT_ID = 6;
+message AlertRouteReq {
+    string robot_name = 1;
+    string namespace_name = 2;
 }
-
-message QueryRouteReq {
-    SEARCH_TYPE search_type = 1;
-    string key_word = 2;
-}
-
-
 
 

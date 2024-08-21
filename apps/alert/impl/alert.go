@@ -18,12 +18,7 @@ import (
 	"time"
 )
 
-// HandlerAlert 拿到告警后
-// 1. 转换为复合飞书 card 的格式
-// 2. 调用router 进行路由查找
-// 3. 调用client 进行发送
-
-// GenSign 辅助函数，飞书机器人消息签名校验，使用timestamp + key 做sha256, 再进行base64 encode
+// GenSign 飞书提供的签名函数
 func (i *Impl) getSign(key string, timestamp int64) string {
 	stringToSign := fmt.Sprintf("%v", timestamp) + "\n" + key
 
@@ -35,159 +30,143 @@ func (i *Impl) getSign(key string, timestamp int64) string {
 	return signature
 }
 
-// sendCard 辅助函数，通过http 客户端发送请求
-func (i *Impl) sendCard(ctx context.Context, url string, data []byte) []byte {
+// sendCard 发送HTTP请求
+func (i *Impl) sendCard(ctx context.Context, url string, data []byte) (*alert.Response, error) {
 	// req
 	req, _ := http.NewRequest(http.MethodPost, url, bytes.NewReader(data))
 	req.Header.Add("Content-Type", "application/json")
 
 	// send
 	rsp, err := http.DefaultClient.Do(req)
-	defer func() { _ = rsp.Body.Close() }()
+	defer func() {
+		if err := rsp.Body.Close(); err != nil {
+			common.L().Error().Msgf("rsp body close err: %v", err)
+		}
+	}()
 	if err != nil {
 		fmt.Printf("http default client send req failed: %v", err)
 	}
 
 	// rsp
 	content, _ := io.ReadAll(rsp.Body)
-	return content
+	ins := &alert.Response{}
+	if err := json.Unmarshal(content, ins); err != nil {
+		return nil, err
+	}
+	return ins, nil
 }
 
 // HandlerAlert 告警处理入口，AlertManager 会请求这个接口
 func (i *Impl) HandlerAlert(ctx context.Context, req *alert.HandlerAlertReq) (*alert.HandlerAlertRsp, error) {
 	rsp := &alert.HandlerAlertRsp{}
-	for _, alter := range req.Alerts {
-		// 通过机器人发送到飞书群组
-		res, err := i.handler(ctx, alter)
+	for _, alerts := range req.Alerts {
+		// ******************** 获取路由信息 ****************************
+		route, err := i.r.AlertRoute(ctx, &router.AlertRouteReq{RobotName: alerts.Labels["robot_name"], NamespaceName: alerts.Labels["namespace"]})
 		if err != nil {
-			common.L().Error().Msgf("handlerAlert err: %v", err)
+			return nil, err
+		}
+
+		// ******************** 模板渲染 ****************************
+		data, err := i.renderTemplate(ctx, alerts, route)
+		if err != nil {
+			common.L().Error().Msgf("renderTemplate failed: %v", err)
 			continue
 		}
 
-		response := &alert.Response{}
-		if err := json.Unmarshal(res, response); err != nil {
-			common.L().Error().Msgf("feishu response Unmarshal err: %v", err)
+		// ******************** 发送数据 ****************************
+		res, err := i.sendCard(ctx, route.Spec.WebhookUrl, data)
+		if err != nil {
+			common.L().Error().Msgf("sendCard failed: %v", err)
 			continue
 		}
-		rsp.Rsp = append(rsp.Rsp, response)
-
-		// 通过K8S 触发自愈操作
-		actions, ok := alter.Labels["actions"]
+		rsp.Rsp = append(rsp.Rsp, res)
+		// ******************** 自愈操作链 ****************************
+		actions, ok := alerts.Labels["actions"]
 		if !ok {
 			continue
 		}
 		for _, action := range strings.Split(actions, ",") {
-			if err := i.RecoveryAction(ctx, alter, action); err != nil {
+			if err := i.RecoveryAction(ctx, alerts, action); err != nil {
 				common.L().Error().Msgf("RecoveryAction failed: %v", err)
 				continue
 			}
 		}
-
 	}
-	// 返回给 AlertManager 的响应
 	return rsp, nil
 }
 
-// handler 核心
-// 1. 从告警中提取感兴趣数据
-// 2. 渲染成飞书卡片的json
-// 3. 发送给机器人 webhook
-func (i *Impl) handler(ctx context.Context, alerter *alert.Alert) ([]byte, error) {
-
+// renderTemplate 模板渲染
+func (i *Impl) renderTemplate(ctx context.Context, alerter *alert.Alert, route *router.Router) ([]byte, error) {
 	var (
-		webhook   string
 		timestamp = time.Now().Unix()
-		sign      string
+		sign      = i.getSign(route.Spec.WebhookToken, timestamp)
 		color     string
 		header    string
 		content   string
 		footer    string
 	)
-	// **************************** 告警标题处理 ****************************
+	// **************************** (1)告警标题处理 ****************************
 	switch alerter.Status {
 	case "firing":
 		color = "red"
 		header = "【容器集群】告警通知"
-		footer = fmt.Sprintf(`**开始时间：**%s\n`, alerter.StartsAt)
+		footer = fmt.Sprintf(`**开始时间：**%s\n`, alerter.GetStartTime())
 	case "resolved":
 		color = "green"
 		header = "【容器集群】告警恢复"
-		footer = fmt.Sprintf(`**开始时间：**%s\n**结束时间：**%s\n`, alerter.StartsAt, alerter.EndsAt)
+		footer = fmt.Sprintf(`**开始时间：**%s\n**结束时间：**%s\n`, alerter.GetStartTime(), alerter.GetEndTime())
 	}
 
-	// **************************** 告警内容处理 ****************************
+	// **************************** (2)告警内容处理 ****************************
+	var (
+		alertName        = alerter.Labels["alertname"]
+		alertLevel       = alerter.Labels["level"]
+		alertSummary     = alerter.Annotations["summary"]
+		alertDescription = alerter.Annotations["description"]
+		alertCluster     = alerter.Labels["robot_name"]
+	)
+
 	switch ns, ok := alerter.Labels["namespace"]; {
-	// 存在namespace，则根据所在的ProjectID 进行路由
 	case ok:
 		rsp, err := i.k.DescNamespace(ctx, &k8s.DescNamespaceReq{ClusterName: alerter.Labels["robot_name"], NamespaceName: ns})
+
+		// 名称空间告警渲染：能够获取到项目信息的、以及获取不到项目信息的
 		if err != nil {
-			common.L().Error().Msgf("ns/%s can not trigger alerter, because project not found", ns)
-			return nil, err
+			content = fmt.Sprintf(alert.NamespaceWithoutProject, alertName, alertLevel, alertCluster, ns, alertSummary, alertDescription)
+		} else {
+			content = fmt.Sprintf(alert.NamespaceContent, alertName, alertLevel, alertCluster, rsp.Spec.ProjectLine, rsp.Spec.ProjectDesc, rsp.Spec.ProjectCode, ns, alertSummary, alertDescription)
 		}
-		content = fmt.Sprintf(
-			`**告警名称：**%s\n**告警级别：**%s\n**告警集群：**%s\n**所属产线：**%s\n**项目名称：**%s\n**项目编码：**%s\n**名称空间：**%s\n**故障描述：**%s\n**故障详情：**%s\n`,
-			alerter.Labels["alertname"],
-			alerter.Labels["level"],
-			alerter.Labels["robot_name"],
 
-			rsp.Project.Spec.ProjectLine,
-			rsp.Project.Spec.ProjectDesc,
-			rsp.Project.Spec.ProjectCode,
-			ns,
-			alerter.Annotations["summary"],
-			alerter.Annotations["description"],
-		)
-		// 获取路由信息
-		rs, err := i.r.QueryRoute(ctx, &router.QueryRouteReq{SearchType: router.SEARCH_TYPE_SEARCH_TYPE_PROJECT_ID, KeyWord: rsp.Project.Spec.ProjectId})
-		if err != nil || len(rs.Items) < 1 {
-			common.L().Error().Msgf("ns/%s cquery router failed, %+v", ns, err)
-		}
-		sign = i.getSign(rs.Items[0].Spec.WebhookToken, timestamp)
-		webhook = rs.Items[0].Spec.WebhookUrl
-
-	// 不存在namespace，则根据robotName 进行路由
 	default:
-		content = fmt.Sprintf(
-			`**告警名称：**%s\n**告警级别：**%s\n**故障描述：**%s\n**故障详情：**%s\n`,
-			alerter.Labels["alertname"],
-			alerter.Labels["level"],
-			alerter.Annotations["summary"],
-			alerter.Annotations["description"],
-		)
-		// 获取路由信息
-		rs, err := i.r.QueryRoute(ctx, &router.QueryRouteReq{SearchType: router.SEARCH_TYPE_SEARCH_TYPE_CLUSTER_NAME, KeyWord: alerter.Labels["robot_name"]})
-		if err != nil || len(rs.Items) < 1 {
-			common.L().Error().Msgf("cluster /%s cquery router failed, %+v", alerter.Labels["robot_name"], err)
-		}
-		sign = i.getSign(rs.Items[0].Spec.WebhookToken, timestamp)
-		webhook = rs.Items[0].Spec.WebhookUrl
+		content = fmt.Sprintf(alert.ClusterContent, alertName, alertLevel, alertSummary, alertDescription)
 	}
 
-	// **************************** 卡片模板渲染 ****************************
+	// **************************** (3)卡片模板渲染 ****************************
 	card := fmt.Sprintf(alert.CardTemplate, timestamp, sign, content, footer, color, header)
-	return i.sendCard(ctx, webhook, []byte(card)), nil
+
+	return []byte(card), nil
 }
 
 // RecoveryAction 集群自愈操作
 func (i *Impl) RecoveryAction(ctx context.Context, req *alert.Alert, action string) error {
-	switch action {
-	case "GetPodRamUsage":
-		in := &k8s.GetPodRamUsageReq{
-			ClusterName: "",
-			NodeName:    "",
-		}
-		_, err := i.k.GetPodRamUsage(ctx, in)
-		if err != nil {
-			return err
-		}
-
-	case "kill_pod":
-		in := &k8s.KillTop1PodReq{
-			ClusterName:   "",
-			NamespaceName: "",
-			PodName:       "",
-		}
-		i.k.KillTop1Pod(ctx, in)
-	}
+	//switch action {
+	//case "GetPodRamUsage":
+	//	in := &k8s.GetPodRamUsageReq{
+	//		ClusterName: "",
+	//		NodeName:    "",
+	//	}
+	//	_, err := i.k.GetPodRamUsage(ctx, in)
+	//	if err != nil {
+	//		return err
+	//	}
+	//
+	//case "kill_pod":
+	//	in := &k8s.KillTop1PodReq{
+	//		ClusterName:   "",
+	//		NamespaceName: "",
+	//		PodName:       "",
+	//	}
+	//	i.k.KillTop1Pod(ctx, in)
+	//}
 	return nil
 }

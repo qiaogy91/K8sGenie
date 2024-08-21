@@ -2,7 +2,7 @@ package impl
 
 import (
 	"context"
-	"gitee.com/qiaogy91/K8sGenie/apps/rancher"
+	"gitee.com/qiaogy91/K8sGenie/apps/k8s"
 	"gitee.com/qiaogy91/K8sGenie/apps/router"
 	"github.com/go-playground/validator"
 	_ "github.com/go-playground/validator"
@@ -16,14 +16,6 @@ func (i *Impl) CreateRoute(ctx context.Context, spec *router.Spec) (*router.Rout
 	// 校验
 	if err := validator.New().Struct(spec); err != nil {
 		return nil, err
-	}
-
-	// 如果提供了projectID
-	if spec.ProjectId != "" {
-		// 判断是否有效ID
-		if _, err := i.rc.QueryProject(ctx, &rancher.QueryProjectReq{SearchType: rancher.SEARCH_TYPE_SEARCH_TYPE_PROJECT_ID, KeyWord: spec.ProjectId}); err != nil {
-			return nil, err
-		}
 	}
 
 	// 创建
@@ -50,58 +42,38 @@ func (i *Impl) DeleteRoute(ctx context.Context, req *router.DeleteRouteReq) (*ro
 	return ins, nil
 }
 
-// QueryRoute 查询各项目告警路由
-// 如果要查询 “智能财务” 产线的情况，那么内部会调用 getProjectIds 来获取 “智能财务产线” 所有的ProjectID，来构造sql
-func (i *Impl) QueryRoute(ctx context.Context, req *router.QueryRouteReq) (*router.RouterSet, error) {
-	sql := i.db.WithContext(ctx).Model(&router.Router{})
-	ins := &router.RouterSet{}
+func (i *Impl) AlertRoute(ctx context.Context, req *router.AlertRouteReq) (*router.Router, error) {
+	ins := &router.Router{}
 
-	switch req.SearchType {
-	case router.SEARCH_TYPE_SEARCH_TYPE_PROJECT_ID:
-		sql = sql.Where("project_id = ?", req.KeyWord)
-	case router.SEARCH_TYPE_SEARCH_TYPE_ROUTER_ID:
-		sql = sql.Where("id = ?", req.KeyWord)
-	case router.SEARCH_TYPE_SEARCH_TYPE_CLUSTER_NAME:
-		sql = sql.Where("cluster_name like ?", "%"+req.KeyWord+"%")
-	default:
-		ids, err := i.getProjectIds(ctx, req)
-		if err != nil {
+	// namespace 标签不存在，直接根据robot_name 路由
+	if req.NamespaceName == "" {
+		if err := i.db.WithContext(ctx).Model(&router.Router{}).Where("identity = ?", req.RobotName).First(ins).Error; err != nil {
 			return nil, err
+		} else {
+			return ins, nil
 		}
-		sql = sql.Where("project_id in ?", ids)
 	}
 
-	if err := sql.Find(&ins.Items).Error; err != nil {
-		return nil, err
-	}
-	ins.Total = int64(len(ins.Items))
+	// namespace 标签存在，尝试则查找对应的项目
+	pro, err := i.kc.DescNamespace(ctx, &k8s.DescNamespaceReq{ClusterName: req.RobotName, NamespaceName: req.NamespaceName})
 
-	return ins, nil
-}
-
-func (i *Impl) getProjectIds(ctx context.Context, req *router.QueryRouteReq) ([]string, error) {
-	var (
-		err  error
-		ids  []string
-		pros = &rancher.ProjectSet{}
-	)
-	switch req.SearchType {
-	case router.SEARCH_TYPE_SEARCH_TYPE_PROJECT_CODE:
-		pros, err = i.rc.QueryProject(ctx, &rancher.QueryProjectReq{SearchType: rancher.SEARCH_TYPE_SEARCH_TYPE_PROJECT_CODE, KeyWord: req.KeyWord})
-
-	case router.SEARCH_TYPE_SEARCH_TYPE_PROJECT_LINE:
-		pros, err = i.rc.QueryProject(ctx, &rancher.QueryProjectReq{SearchType: rancher.SEARCH_TYPE_SEARCH_TYPE_PROJECT_LINE, KeyWord: req.KeyWord})
-
-	case router.SEARCH_TYPE_SEARCH_TYPE_PROJECT_DESC:
-		pros, err = i.rc.QueryProject(ctx, &rancher.QueryProjectReq{SearchType: rancher.SEARCH_TYPE_SEARCH_TYPE_PROJECT_DESC, KeyWord: req.KeyWord})
-	}
-
+	// 找不到Project，则进入默认路由
 	if err != nil {
-		return nil, err
+		// 默认路由
+		if err := i.db.WithContext(ctx).Model(&router.Router{}).Where("identity = ?", req.RobotName).First(ins).Error; err != nil {
+			return nil, err
+		} else {
+			return ins, nil
+		}
 	}
-
-	for _, pro := range pros.Items {
-		ids = append(ids, pro.Spec.ProjectId)
+	// 找到了Project，尝试查找Project 对应的路由，如果找不到，则走默认路由
+	if err := i.db.WithContext(ctx).Model(&router.Router{}).Where("identity = ?", pro.Spec.ProjectId).First(ins).Error; err != nil {
+		// 默认路由
+		if err := i.db.WithContext(ctx).Model(&router.Router{}).Where("identity = ?", req.RobotName).First(ins).Error; err != nil {
+			return nil, err
+		} else {
+			return ins, nil
+		}
 	}
-	return ids, nil
+	return ins, nil
 }

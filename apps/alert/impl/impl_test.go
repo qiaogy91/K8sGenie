@@ -20,6 +20,7 @@ func init() {
 func TestImpl_HandlerAlert(t *testing.T) {
 	alerts := &alert.HandlerAlertReq{
 		Alerts: []*alert.Alert{
+			// 集群级别告警
 			{
 				Status:   "firing",
 				StartsAt: "2024-08-20T07:45:54.632Z",
@@ -34,6 +35,7 @@ func TestImpl_HandlerAlert(t *testing.T) {
 					"summary":     "集群级别告警",
 				},
 			},
+			// 名称空间级别告警
 			{
 				Status:   "firing",
 				StartsAt: "2024-08-20T07:45:54.632Z",
@@ -41,6 +43,23 @@ func TestImpl_HandlerAlert(t *testing.T) {
 				Labels: map[string]string{
 					"robot_name": "itcp-k8s-uat",
 					"namespace":  "crc-yourh-dev",
+					"alertname":  "alertname test",
+					"level":      "level test",
+				},
+				Annotations: map[string]string{
+					"description": "test desc",
+					"summary":     "名称空间级项目告警",
+				},
+			},
+
+			// 名称空间级别告警，但是未归属到项目
+			{
+				Status:   "firing",
+				StartsAt: "2024-08-20T07:45:54.632Z",
+				EndsAt:   "2024-08-20T07:45:54.632Z",
+				Labels: map[string]string{
+					"robot_name": "itcp-k8s-uat",
+					"namespace":  "default",
 					"alertname":  "alertname test",
 					"level":      "level test",
 				},

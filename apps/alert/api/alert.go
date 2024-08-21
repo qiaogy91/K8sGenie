@@ -20,6 +20,5 @@ func (h *Handler) HandlerAlert(req *restful.Request, rsp *restful.Response) {
 		common.SendFailed(rsp, http.StatusBadRequest, err)
 		return
 	}
-
 	common.SendSuccess(rsp, res)
 }
