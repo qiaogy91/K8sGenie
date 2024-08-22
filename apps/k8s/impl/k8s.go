@@ -97,7 +97,7 @@ func (i *Impl) handlerDeployment(ctx context.Context, c *kubernetes.Clientset, p
 	// 3. 如果存在，则遍历该名称空间下所有dep，进行统计计算
 	deps, err := c.AppsV1().Deployments(ns.Name).List(ctx, v1.ListOptions{})
 	if err != nil {
-		common.L().Info().Msgf("handlerDeployment list deployment failed %v", err)
+		common.L().Info().Msgf("handlerDeployment list ns/%s deployment failed %v", ns.Name, err)
 		return err
 	}
 
