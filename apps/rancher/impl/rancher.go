@@ -77,25 +77,38 @@ func (i *Impl) SyncProject(empty *rancher.Empty, server rancher.Rpc_SyncProjectS
 	return nil
 }
 
+func (i *Impl) DescProject(ctx context.Context, req *rancher.DescProjectReq) (*rancher.Project, error) {
+	ins := &rancher.Project{}
+	sql := i.db.WithContext(ctx).Model(&rancher.Project{})
+
+	switch req.DescType {
+	case rancher.DESC_TYPE_DESC_TYPE_PROJECT_ID:
+		sql = sql.Where("project_id = ?", req.KeyWord)
+	case rancher.DESC_TYPE_DESC_TYPE_PROJECT_CODE:
+		sql = sql.Where("project_code = ?", req.KeyWord)
+	case rancher.DESC_TYPE_DESC_TYPE_PROJECT_DESC:
+		sql = sql.Where("project_desc like ?", "%"+req.KeyWord+"%")
+	}
+
+	if err := sql.First(&ins).Error; err != nil {
+		return nil, err
+	}
+	return ins, nil
+
+}
+
 func (i *Impl) QueryProject(ctx context.Context, req *rancher.QueryProjectReq) (*rancher.ProjectSet, error) {
 	ins := &rancher.ProjectSet{}
 	sql := i.db.WithContext(ctx).Model(&rancher.Project{})
 
-	switch req.SearchType {
-	case rancher.SEARCH_TYPE_SEARCH_TYPE_CLUSTER_NAME:
+	switch req.QueryType {
+	case rancher.QUERY_TYPE_QUERY_TYPE_CLUSTER_CODE:
+
 		sql = sql.Where("cluster_name = ?", req.KeyWord)
-
-	case rancher.SEARCH_TYPE_SEARCH_TYPE_ANNOTATION:
-		sql = sql.Where("project_id = ?", req.KeyWord)
-	case rancher.SEARCH_TYPE_SEARCH_TYPE_PROJECT_ID:
-		sql = sql.Where("project_id = ?", req.KeyWord)
-
-	case rancher.SEARCH_TYPE_SEARCH_TYPE_PROJECT_CODE:
-		sql = sql.Where("project_code like ?", "%"+req.KeyWord+"%")
-	case rancher.SEARCH_TYPE_SEARCH_TYPE_PROJECT_LINE:
+	case rancher.QUERY_TYPE_QUERY_TYPE_PROJECT_LINE:
 		sql = sql.Where("project_line like ?", "%"+req.KeyWord+"%")
-	case rancher.SEARCH_TYPE_SEARCH_TYPE_PROJECT_DESC:
-		sql = sql.Where("project_desc like ?", "%"+req.KeyWord+"%")
+	default:
+		sql = sql.Where("1=1¬")
 
 	}
 

@@ -3,6 +3,7 @@ package impl
 import (
 	"context"
 	"gitee.com/qiaogy91/K8sGenie/apps/k8s"
+	"gitee.com/qiaogy91/K8sGenie/apps/rancher"
 	"gitee.com/qiaogy91/K8sGenie/apps/router"
 	"github.com/go-playground/validator"
 	_ "github.com/go-playground/validator"
@@ -75,5 +76,47 @@ func (i *Impl) AlertRoute(ctx context.Context, req *router.AlertRouteReq) (*rout
 			return ins, nil
 		}
 	}
+	return ins, nil
+}
+
+func (i *Impl) QueryRoute(ctx context.Context, req *router.QueryRouteReq) (*router.RouterSet, error) {
+
+	if err := validator.New().Struct(req); err != nil {
+		return nil, err
+	}
+
+	sql := i.db.WithContext(ctx).Model(&router.Router{})
+	ins := &router.RouterSet{}
+
+	switch req.Type {
+	case router.QUERY_TYPE_QUERY_TYPE_BY_CLUSTER_CODE:
+
+		sql = sql.Where("identity = ?", req.Keyword)
+
+	case router.QUERY_TYPE_QUERY_TYPE_BY_PROJECT_LINE:
+		// 查询这个产线下的所有 project
+		ps, err := i.rc.QueryProject(ctx, &rancher.QueryProjectReq{QueryType: rancher.QUERY_TYPE_QUERY_TYPE_PROJECT_LINE, KeyWord: req.Keyword})
+		if err != nil {
+			return nil, err
+		}
+
+		sql = sql.Where("identity in ?", ps.ProjectIds())
+	case router.QUERY_TYPE_QUERY_TYPE_ALL:
+		sql = sql.Where("1=1")
+	}
+
+	if err := sql.Find(&ins.Items).Error; err != nil {
+		return nil, err
+	}
+
+	// 附加Project 信息
+	for _, r := range ins.Items {
+		pro, err := i.rc.DescProject(ctx, &rancher.DescProjectReq{DescType: rancher.DESC_TYPE_DESC_TYPE_PROJECT_ID, KeyWord: r.Spec.Identity})
+		if err != nil {
+			continue
+		}
+		r.Spec.ProjectSpec = pro.Spec
+	}
+
 	return ins, nil
 }

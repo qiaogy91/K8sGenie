@@ -24,7 +24,7 @@ func (i *Impl) Name() string {
 }
 
 func (i *Impl) Init() error {
-	i.db = conf.C().GetMysqlPool()
+	i.db = conf.C().GetMysqlPool().Debug()
 	i.rc = ioc.GetController(rancher.AppName).(rancher.Service)
 	i.kc = ioc.GetController(k8s.AppName).(k8s.Service)
 	return nil

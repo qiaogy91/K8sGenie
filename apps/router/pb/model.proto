@@ -2,6 +2,8 @@ syntax = "proto3";
 
 package K8sGenie.router;
 
+import "apps/rancher/pb/model.proto";
+
 option go_package = "gitee.com/qiaogy91/K8sGenie/apps/router";
 
 message Meta {
@@ -13,12 +15,14 @@ message Meta {
 }
 
 message Spec {
+    // @gotags: validate:"required" gorm:"unique"
+    string identity = 1;
     // @gotags: validate:"required"
-    string identity = 2;
+    string webhook_url = 2;
     // @gotags: validate:"required"
-    string webhook_url = 3;
-    // @gotags: validate:"required"
-    string webhook_token = 4;
+    string webhook_token = 3;
+    // @gotags: gorm:"-"
+    resourcer.Spec project_spec = 4;
 }
 
 message Router {
@@ -26,4 +30,5 @@ message Router {
     Meta meta = 1;
     // @gotags: json:"spec" gorm:"embedded"
     Spec spec = 2;
+
 }

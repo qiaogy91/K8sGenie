@@ -60,21 +60,12 @@ func (i *Impl) handler(ctx context.Context, c *kubernetes.Clientset, stream k8s.
 		}
 
 		// 2. 根据注解信息查找项目
-		res, err := i.rc.QueryProject(ctx, &rancher.QueryProjectReq{
-			SearchType: rancher.SEARCH_TYPE_SEARCH_TYPE_ANNOTATION,
-			KeyWord:    annotation,
-		})
+		pro, err := i.rc.DescProject(ctx, &rancher.DescProjectReq{DescType: rancher.DESC_TYPE_DESC_TYPE_PROJECT_ID, KeyWord: annotation})
 		if err != nil {
 			common.L().Info().Msgf("no such project, %s , %v", ns.Name, err)
 			continue
 		}
 
-		if res.Total == 0 {
-			common.L().Info().Msgf("K8SResourceSync namespace has no projectId, %s , %v", ns.Name, err)
-			continue
-		}
-
-		pro := res.Items[0]
 		// - 处理 deployment
 		if err := i.handlerDeployment(ctx, c, pro, ns, stream); err != nil {
 			return err
