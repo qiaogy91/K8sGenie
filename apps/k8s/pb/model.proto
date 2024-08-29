@@ -12,6 +12,11 @@ enum Type {
     TYPE_DAEMON_SET = 4;
 }
 
+message WorkLoadSet{
+    int64 total = 1;
+    repeated WorkLoad items = 2;
+}
+
 message WorkLoad{
     // @gotags: json:"meta" gorm:"embedded"
     Meta meta = 1;
@@ -45,3 +50,4 @@ message Spec {
     // @gotags: json:"project_id"
     string project_id = 7;
 }
+

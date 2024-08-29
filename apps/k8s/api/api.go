@@ -32,6 +32,14 @@ func (h *Handler) RegistryRoute(p string) {
 		Metadata("action", "sync").
 		Doc("同步工作负载"))
 
+	ws.Route(ws.GET("workload").To(h.QueryK8SWorkload).
+		Metadata("auth", true).
+		Metadata("perm", true).
+		Metadata("audit", true).
+		Metadata("resource", k8s.AppName).
+		Metadata("action", "list").
+		Doc("获取工作负载"))
+
 	restful.Add(ws)
 
 }

@@ -28,9 +28,17 @@ func (h *Handler) RegistryRoute(pro string) {
 		Metadata("auth", true).
 		Metadata("perm", true).
 		Metadata("audit", true).
-		Metadata("resource", "project").
+		Metadata("resource", rancher.AppName).
 		Metadata("action", "create").
 		Doc("同步项目信息"))
+
+	ws.Route(ws.GET("").To(h.QueryProject).
+		Metadata("auth", true).
+		Metadata("perm", true).
+		Metadata("audit", true).
+		Metadata("resource", rancher.AppName).
+		Metadata("action", "list").
+		Doc("获取项目列表"))
 
 	restful.Add(ws)
 }

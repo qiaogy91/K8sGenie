@@ -78,3 +78,18 @@ func TestImpl_KillTop1Pod(t *testing.T) {
 		t.Fatal(err)
 	}
 }
+
+func TestImpl_QueryK8SWorkload(t *testing.T) {
+	req := &k8s.QueryK8SWorkloadReq{
+		Type:    k8s.SEARCH_TYPE_SEARCH_TYPE_WORKLOAD_NAME,
+		Keyword: "runwork",
+	}
+
+	ins, err := c.QueryK8SWorkload(ctx, req)
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, pod := range ins.Items {
+		t.Logf("%+v", pod)
+	}
+}

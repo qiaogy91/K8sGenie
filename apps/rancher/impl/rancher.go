@@ -107,9 +107,8 @@ func (i *Impl) QueryProject(ctx context.Context, req *rancher.QueryProjectReq) (
 		sql = sql.Where("cluster_name = ?", req.KeyWord)
 	case rancher.QUERY_TYPE_QUERY_TYPE_PROJECT_LINE:
 		sql = sql.Where("project_line like ?", "%"+req.KeyWord+"%")
-	default:
-		sql = sql.Where("1=1¬")
-
+	case rancher.QUERY_TYPE_QUERY_TYPE_ALL:
+		sql = sql.Where("1=1")
 	}
 
 	if err := sql.Find(&ins.Items).Error; err != nil {

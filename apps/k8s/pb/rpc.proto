@@ -12,11 +12,25 @@ service Rpc {
     rpc CreateTable (Empty) returns (Empty);
     rpc SyncK8sWorkload (Empty) returns (stream WorkLoad);
     rpc DescNamespace (DescNamespaceReq) returns (resourcer.Project);
+    rpc QueryK8sWorkload(QueryK8sWorkloadReq)returns (WorkLoadSet);
     // 自愈方法
     rpc GetPodRamUsage (GetPodRamUsageReq) returns (GetPodRamUsageRsp);
     rpc KillTop1Pod (KillTop1PodReq) returns (KillTop1PodRsp);
 }
 
+
+enum SEARCH_TYPE {
+    SEARCH_TYPE_UNSPECIFIED = 0;
+    SEARCH_TYPE_ALL = 1;
+    SEARCH_TYPE_NAMESPACE = 2;
+    SEARCH_TYPE_WORKLOAD_NAME = 3;
+    SEARCH_TYPE_PROJECT_CODE = 4;
+}
+
+message QueryK8sWorkloadReq{
+    SEARCH_TYPE type = 1;
+    string keyword = 2;
+}
 
 message DescNamespaceReq {
     string cluster_name = 1;

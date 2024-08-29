@@ -7,6 +7,7 @@ import (
 	"gitee.com/qiaogy91/K8sGenie/apps/k8s"
 	"gitee.com/qiaogy91/K8sGenie/apps/rancher"
 	"gitee.com/qiaogy91/K8sGenie/common"
+	"github.com/go-playground/validator"
 	cv1 "k8s.io/api/core/v1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
@@ -206,6 +207,41 @@ func (i *Impl) handlerStatefulSet(ctx context.Context, c *kubernetes.Clientset, 
 		}
 	}
 	return nil
+}
+
+func (i *Impl) QueryK8SWorkload(ctx context.Context, req *k8s.QueryK8SWorkloadReq) (*k8s.WorkLoadSet, error) {
+	if err := validator.New().Struct(req); err != nil {
+		return nil, err
+	}
+
+	// todo 这里应该只获取最新的数据
+	sTime := time.Now().Truncate(24 * time.Hour)
+	eTime := sTime.Add(24 * time.Hour)
+	sql := i.db.WithContext(ctx).Model(&k8s.WorkLoad{}).Where("created_at >= ? AND created_at < ?", sTime.Unix(), eTime.Unix())
+
+	switch req.Type {
+	case k8s.SEARCH_TYPE_SEARCH_TYPE_ALL:
+		sql = sql.Where("1 = 1")
+	case k8s.SEARCH_TYPE_SEARCH_TYPE_PROJECT_CODE:
+		pro, err := i.rc.DescProject(ctx, &rancher.DescProjectReq{DescType: rancher.DESC_TYPE_DESC_TYPE_PROJECT_CODE, KeyWord: req.Keyword})
+		if err != nil {
+			return nil, err
+		}
+		sql = sql.Where("project_id = ?", pro.Spec.ProjectId)
+	case k8s.SEARCH_TYPE_SEARCH_TYPE_NAMESPACE:
+		sql = sql.Where("namespace = ?", req.Keyword)
+	case k8s.SEARCH_TYPE_SEARCH_TYPE_WORKLOAD_NAME:
+		sql = sql.Where("name like ?", "%"+req.Keyword+"%")
+	}
+
+	ins := &k8s.WorkLoadSet{}
+	if err := sql.Find(&ins.Items).Error; err != nil {
+		return nil, err
+	}
+
+	ins.Total = int64(len(ins.Items))
+
+	return ins, nil
 }
 
 // DescNamespace 根据名称空间，反查项目

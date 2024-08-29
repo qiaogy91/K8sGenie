@@ -1,9 +1,12 @@
 package api
 
 import (
+	"gitee.com/qiaogy91/K8sGenie/apps/k8s"
 	"gitee.com/qiaogy91/K8sGenie/common"
 	"github.com/emicklei/go-restful/v3"
 	"github.com/gorilla/websocket"
+	"net/http"
+	"strconv"
 )
 
 func (h *Handler) SyncK8SWorkload(req *restful.Request, rsp *restful.Response) {
@@ -24,4 +27,21 @@ func (h *Handler) SyncK8SWorkload(req *restful.Request, rsp *restful.Response) {
 	if err := conn.Close(); err != nil {
 		common.L().Error().Msgf("ws close conn failed: %v", err)
 	}
+}
+
+func (h *Handler) QueryK8SWorkload(req *restful.Request, rsp *restful.Response) {
+	tp, err := strconv.ParseInt(req.QueryParameter("type"), 10, 64)
+	if err != nil {
+		common.SendFailed(rsp, http.StatusBadRequest, err)
+		return
+	}
+
+	inst := &k8s.QueryK8SWorkloadReq{Type: k8s.SEARCH_TYPE(tp), Keyword: req.QueryParameter("keyword")}
+	outs, err := h.svc.QueryK8SWorkload(req.Request.Context(), inst)
+	if err != nil {
+		common.SendFailed(rsp, http.StatusBadRequest, err)
+		return
+	}
+
+	common.SendSuccess(rsp, outs)
 }
