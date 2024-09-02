@@ -64,3 +64,18 @@ func TestImpl_AlertRoute(t *testing.T) {
 	}
 	t.Logf("%+v", ins)
 }
+
+func TestImpl_QueryRoute(t *testing.T) {
+	req := &router.QueryRouteReq{
+		Type:    router.QUERY_TYPE_QUERY_TYPE_BY_CLUSTER_CODE,
+		Keyword: "itcp-k8s-uat",
+		//Type:    router.QUERY_TYPE_QUERY_TYPE_BY_PROJECT_LINE,
+		//Keyword: "创新学习",
+	}
+
+	ins, err := c.QueryRoute(ctx, req)
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Logf("%+v", ins)
+}

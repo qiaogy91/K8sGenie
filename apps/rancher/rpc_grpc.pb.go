@@ -21,6 +21,7 @@ const _ = grpc.SupportPackageIsVersion7
 const (
 	Rpc_CreateTable_FullMethodName  = "/K8sGenie.resourcer.Rpc/CreateTable"
 	Rpc_SyncProject_FullMethodName  = "/K8sGenie.resourcer.Rpc/SyncProject"
+	Rpc_DescProject_FullMethodName  = "/K8sGenie.resourcer.Rpc/DescProject"
 	Rpc_QueryProject_FullMethodName = "/K8sGenie.resourcer.Rpc/QueryProject"
 )
 
@@ -31,6 +32,7 @@ type RpcClient interface {
 	// for rancher
 	CreateTable(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*Empty, error)
 	SyncProject(ctx context.Context, in *Empty, opts ...grpc.CallOption) (Rpc_SyncProjectClient, error)
+	DescProject(ctx context.Context, in *DescProjectReq, opts ...grpc.CallOption) (*Project, error)
 	QueryProject(ctx context.Context, in *QueryProjectReq, opts ...grpc.CallOption) (*ProjectSet, error)
 }
 
@@ -83,6 +85,15 @@ func (x *rpcSyncProjectClient) Recv() (*Project, error) {
 	return m, nil
 }
 
+func (c *rpcClient) DescProject(ctx context.Context, in *DescProjectReq, opts ...grpc.CallOption) (*Project, error) {
+	out := new(Project)
+	err := c.cc.Invoke(ctx, Rpc_DescProject_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *rpcClient) QueryProject(ctx context.Context, in *QueryProjectReq, opts ...grpc.CallOption) (*ProjectSet, error) {
 	out := new(ProjectSet)
 	err := c.cc.Invoke(ctx, Rpc_QueryProject_FullMethodName, in, out, opts...)
@@ -99,6 +110,7 @@ type RpcServer interface {
 	// for rancher
 	CreateTable(context.Context, *Empty) (*Empty, error)
 	SyncProject(*Empty, Rpc_SyncProjectServer) error
+	DescProject(context.Context, *DescProjectReq) (*Project, error)
 	QueryProject(context.Context, *QueryProjectReq) (*ProjectSet, error)
 	mustEmbedUnimplementedRpcServer()
 }
@@ -112,6 +124,9 @@ func (UnimplementedRpcServer) CreateTable(context.Context, *Empty) (*Empty, erro
 }
 func (UnimplementedRpcServer) SyncProject(*Empty, Rpc_SyncProjectServer) error {
 	return status.Errorf(codes.Unimplemented, "method SyncProject not implemented")
+}
+func (UnimplementedRpcServer) DescProject(context.Context, *DescProjectReq) (*Project, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DescProject not implemented")
 }
 func (UnimplementedRpcServer) QueryProject(context.Context, *QueryProjectReq) (*ProjectSet, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method QueryProject not implemented")
@@ -168,6 +183,24 @@ func (x *rpcSyncProjectServer) Send(m *Project) error {
 	return x.ServerStream.SendMsg(m)
 }
 
+func _Rpc_DescProject_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DescProjectReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RpcServer).DescProject(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Rpc_DescProject_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RpcServer).DescProject(ctx, req.(*DescProjectReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Rpc_QueryProject_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(QueryProjectReq)
 	if err := dec(in); err != nil {
@@ -196,6 +229,10 @@ var Rpc_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "CreateTable",
 			Handler:    _Rpc_CreateTable_Handler,
+		},
+		{
+			MethodName: "DescProject",
+			Handler:    _Rpc_DescProject_Handler,
 		},
 		{
 			MethodName: "QueryProject",

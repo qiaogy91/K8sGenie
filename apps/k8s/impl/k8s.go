@@ -7,6 +7,7 @@ import (
 	"gitee.com/qiaogy91/K8sGenie/apps/k8s"
 	"gitee.com/qiaogy91/K8sGenie/apps/rancher"
 	"gitee.com/qiaogy91/K8sGenie/common"
+	"github.com/go-playground/validator"
 	cv1 "k8s.io/api/core/v1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
@@ -29,11 +30,9 @@ func (i *Impl) CreateTable(ctx context.Context, empty *k8s.Empty) (*k8s.Empty, e
 func (i *Impl) SyncK8SWorkload(empty *k8s.Empty, stream k8s.Rpc_SyncK8SWorkloadServer) error {
 	// 数据清洗
 	ctx := context.Background()
-	sTime := time.Now().Truncate(24 * time.Hour)
-	eTime := sTime.Add(24 * time.Hour)
-	if err := i.db.WithContext(ctx).Where("created_at >= ? AND created_at < ?", sTime.Unix(), eTime.Unix()).Delete(&k8s.WorkLoad{}).Error; err != nil {
-		return err
-	}
+	// 每次都是重新获取数据，确保数据与当前完全一致
+	i.db.Exec("TRUNCATE TABLE work_loads")
+	i.db.Exec("ALTER TABLE work_loads AUTO_INCREMENT = 1")
 
 	for cluster, client := range i.cs {
 		common.L().Info().Msgf("=============== %s =======================", cluster)
@@ -60,21 +59,12 @@ func (i *Impl) handler(ctx context.Context, c *kubernetes.Clientset, stream k8s.
 		}
 
 		// 2. 根据注解信息查找项目
-		res, err := i.rc.QueryProject(ctx, &rancher.QueryProjectReq{
-			SearchType: rancher.SEARCH_TYPE_SEARCH_TYPE_ANNOTATION,
-			KeyWord:    annotation,
-		})
+		pro, err := i.rc.DescProject(ctx, &rancher.DescProjectReq{DescType: rancher.DESC_TYPE_DESC_TYPE_PROJECT_ID, KeyWord: annotation})
 		if err != nil {
 			common.L().Info().Msgf("no such project, %s , %v", ns.Name, err)
 			continue
 		}
 
-		if res.Total == 0 {
-			common.L().Info().Msgf("K8SResourceSync namespace has no projectId, %s , %v", ns.Name, err)
-			continue
-		}
-
-		pro := res.Items[0]
 		// - 处理 deployment
 		if err := i.handlerDeployment(ctx, c, pro, ns, stream); err != nil {
 			return err
@@ -97,7 +87,7 @@ func (i *Impl) handlerDeployment(ctx context.Context, c *kubernetes.Clientset, p
 	// 3. 如果存在，则遍历该名称空间下所有dep，进行统计计算
 	deps, err := c.AppsV1().Deployments(ns.Name).List(ctx, v1.ListOptions{})
 	if err != nil {
-		common.L().Info().Msgf("handlerDeployment list deployment failed %v", err)
+		common.L().Info().Msgf("handlerDeployment list ns/%s deployment failed %v", ns.Name, err)
 		return err
 	}
 
@@ -215,6 +205,41 @@ func (i *Impl) handlerStatefulSet(ctx context.Context, c *kubernetes.Clientset, 
 		}
 	}
 	return nil
+}
+
+func (i *Impl) QueryK8SWorkload(ctx context.Context, req *k8s.QueryK8SWorkloadReq) (*k8s.WorkLoadSet, error) {
+	if err := validator.New().Struct(req); err != nil {
+		return nil, err
+	}
+
+	// todo 这里应该只获取最新的数据
+	sTime := time.Now().Truncate(24 * time.Hour)
+	eTime := sTime.Add(24 * time.Hour)
+	sql := i.db.WithContext(ctx).Model(&k8s.WorkLoad{}).Where("created_at >= ? AND created_at < ?", sTime.Unix(), eTime.Unix())
+
+	switch req.Type {
+	case k8s.SEARCH_TYPE_SEARCH_TYPE_ALL:
+		sql = sql.Where("1 = 1")
+	case k8s.SEARCH_TYPE_SEARCH_TYPE_PROJECT_CODE:
+		pro, err := i.rc.DescProject(ctx, &rancher.DescProjectReq{DescType: rancher.DESC_TYPE_DESC_TYPE_PROJECT_CODE, KeyWord: req.Keyword})
+		if err != nil {
+			return nil, err
+		}
+		sql = sql.Where("project_id = ?", pro.Spec.ProjectId)
+	case k8s.SEARCH_TYPE_SEARCH_TYPE_NAMESPACE:
+		sql = sql.Where("namespace = ?", req.Keyword)
+	case k8s.SEARCH_TYPE_SEARCH_TYPE_WORKLOAD_NAME:
+		sql = sql.Where("name like ?", "%"+req.Keyword+"%")
+	}
+
+	ins := &k8s.WorkLoadSet{}
+	if err := sql.Find(&ins.Items).Error; err != nil {
+		return nil, err
+	}
+
+	ins.Total = int64(len(ins.Items))
+
+	return ins, nil
 }
 
 // DescNamespace 根据名称空间，反查项目
