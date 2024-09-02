@@ -25,7 +25,7 @@ func (h *Handler) RegistryRoute(p string) {
 	ws.Path(path.Join("/api/v1", p, k8s.AppName)).Consumes(restful.MIME_JSON).Produces(restful.MIME_JSON)
 
 	ws.Route(ws.GET("sync").To(h.SyncK8SWorkload).
-		Metadata("auth", true).
+		Metadata("auth", false).
 		Metadata("perm", true).
 		Metadata("audit", true).
 		Metadata("resource", k8s.AppName).

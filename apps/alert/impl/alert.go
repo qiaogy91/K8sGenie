@@ -61,7 +61,7 @@ func (i *Impl) HandlerAlert(ctx context.Context, req *alert.HandlerAlertReq) (*a
 	rsp := &alert.HandlerAlertRsp{}
 	for _, alerts := range req.Alerts {
 		// ******************** 获取路由信息 ****************************
-		route, err := i.r.AlertRoute(ctx, &router.AlertRouteReq{RobotName: alerts.Labels["robot_name"], NamespaceName: alerts.Labels["namespace"]})
+		route, err := i.r.AlertRoute(ctx, &router.AlertRouteReq{RobotName: alerts.Labels["robotName"], NamespaceName: alerts.Labels["namespace"]})
 		if err != nil {
 			return nil, err
 		}
@@ -123,12 +123,12 @@ func (i *Impl) renderTemplate(ctx context.Context, alerter *alert.Alert, route *
 		alertLevel       = alerter.Labels["level"]
 		alertSummary     = alerter.Annotations["summary"]
 		alertDescription = alerter.Annotations["description"]
-		alertCluster     = alerter.Labels["robot_name"]
+		alertCluster     = alerter.Labels["robotName"]
 	)
 
 	switch ns, ok := alerter.Labels["namespace"]; {
 	case ok:
-		rsp, err := i.k.DescNamespace(ctx, &k8s.DescNamespaceReq{ClusterName: alerter.Labels["robot_name"], NamespaceName: ns})
+		rsp, err := i.k.DescNamespace(ctx, &k8s.DescNamespaceReq{ClusterName: alerter.Labels["robotName"], NamespaceName: ns})
 
 		// 名称空间告警渲染：能够获取到项目信息的、以及获取不到项目信息的
 		if err != nil {

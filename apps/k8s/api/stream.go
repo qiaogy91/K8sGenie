@@ -25,5 +25,5 @@ type WebSocketStream struct {
 }
 
 func (w *WebSocketStream) Send(rsp *k8s.WorkLoad) error {
-	return w.ws.WriteJSON(rsp)
+	return w.ws.WriteJSON(rsp.Spec)
 }

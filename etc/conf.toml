@@ -12,7 +12,7 @@ token = "redhatxxoo"
 [mysql]
 addr = "127.0.0.1"
 port = 3306
-database = "K8sGenie"
+database = "Ginie"
 username = "root"
 password = "redhat"
 max_open_conn = 100

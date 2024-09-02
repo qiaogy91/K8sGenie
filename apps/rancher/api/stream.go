@@ -25,5 +25,5 @@ type WebSocketStream struct {
 }
 
 func (w *WebSocketStream) Send(rsp *rancher.Project) error {
-	return w.ws.WriteJSON(rsp)
+	return w.ws.WriteJSON(rsp.Spec)
 }

@@ -30,11 +30,9 @@ func (i *Impl) CreateTable(ctx context.Context, empty *k8s.Empty) (*k8s.Empty, e
 func (i *Impl) SyncK8SWorkload(empty *k8s.Empty, stream k8s.Rpc_SyncK8SWorkloadServer) error {
 	// 数据清洗
 	ctx := context.Background()
-	sTime := time.Now().Truncate(24 * time.Hour)
-	eTime := sTime.Add(24 * time.Hour)
-	if err := i.db.WithContext(ctx).Where("created_at >= ? AND created_at < ?", sTime.Unix(), eTime.Unix()).Delete(&k8s.WorkLoad{}).Error; err != nil {
-		return err
-	}
+	// 每次都是重新获取数据，确保数据与当前完全一致
+	i.db.Exec("TRUNCATE TABLE work_loads")
+	i.db.Exec("ALTER TABLE work_loads AUTO_INCREMENT = 1")
 
 	for cluster, client := range i.cs {
 		common.L().Info().Msgf("=============== %s =======================", cluster)

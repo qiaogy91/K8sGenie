@@ -25,7 +25,7 @@ func (h *Handler) RegistryRoute(pro string) {
 	ws.Path(path.Join("/api/v1", pro, rancher.AppName)).Consumes(restful.MIME_JSON).Produces(restful.MIME_JSON)
 
 	ws.Route(ws.GET("sync").To(h.SyncProject).
-		Metadata("auth", true).
+		Metadata("auth", false).
 		Metadata("perm", true).
 		Metadata("audit", true).
 		Metadata("resource", rancher.AppName).

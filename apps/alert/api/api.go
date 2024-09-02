@@ -33,7 +33,6 @@ func (h *Handler) RegistryRoute(proName string) {
 		Doc("告警处理"))
 
 	restful.Add(ws)
-
 }
 
 func init() {
