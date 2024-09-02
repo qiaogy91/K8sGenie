@@ -1,0 +1,38 @@
+syntax = "proto3";
+
+package K8sGenie.resourcer;
+
+import "apps/rancher/pb/model.proto";
+
+option go_package = "gitee.com/qiaogy91/K8sGenie/apps/rancher";
+
+service Rpc {
+    // for rancher
+    rpc CreateTable (Empty) returns (Empty);
+    rpc SyncProject (Empty) returns (stream Project);
+    rpc DescProject (DescProjectReq) returns (Project);
+    rpc QueryProject (QueryProjectReq) returns (ProjectSet);
+}
+enum DESC_TYPE {
+    DESC_TYPE_UNSPECIFIED = 0;
+    DESC_TYPE_PROJECT_ID = 1;
+    DESC_TYPE_PROJECT_CODE = 2;
+    DESC_TYPE_PROJECT_DESC = 3;
+}
+
+message DescProjectReq {
+    DESC_TYPE desc_type = 1;
+    string key_word = 2;
+}
+
+enum QUERY_TYPE {
+    QUERY_TYPE_UNSPECIFIED = 0;
+    QUERY_TYPE_ALL = 1;
+    QUERY_TYPE_CLUSTER_CODE = 2;
+    QUERY_TYPE_PROJECT_LINE = 3;
+}
+
+message QueryProjectReq {
+    QUERY_TYPE query_type = 1;
+    string key_word = 2;
+}

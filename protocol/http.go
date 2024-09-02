@@ -6,6 +6,7 @@ import (
 	"gitee.com/qiaogy91/K8sGenie/common"
 	"gitee.com/qiaogy91/K8sGenie/conf"
 	"gitee.com/qiaogy91/K8sGenie/ioc"
+	"gitee.com/qiaogy91/UserCenter/client/rpc"
 	"github.com/emicklei/go-restful/v3"
 	"net/http"
 	"time"
@@ -28,6 +29,19 @@ func (h *HttpServer) Start() error {
 			common.L().Info().Msgf("%s %s", r.Method, r.Path)
 		}
 	}
+
+	cors := restful.CrossOriginResourceSharing{
+		ExposeHeaders:  []string{"X-My-Header"},
+		AllowedHeaders: []string{"Content-Type", "Accept"},
+		AllowedMethods: []string{"GET", "POST"},
+		CookiesAllowed: false,
+		Container:      restful.DefaultContainer,
+	}
+
+	// CORS 跨域
+	restful.DefaultContainer.Filter(cors.Filter)
+	// Token 认证中间件
+	restful.DefaultContainer.Filter(rpc.NewTokenClient().Filter())
 
 	// 启动监听
 	common.L().Info().Msgf("http server started, at %s", conf.C().HttpAddr())

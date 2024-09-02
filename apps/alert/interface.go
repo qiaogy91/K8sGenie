@@ -1,7 +1,7 @@
-package k8s
+package alert
 
 const (
-	AppName = "k8s"
+	AppName = "alert"
 )
 
 type Service interface {

@@ -1,7 +1,7 @@
-package k8s
+package rancher
 
 const (
-	AppName = "k8s"
+	AppName = "rancher"
 )
 
 type Service interface {
