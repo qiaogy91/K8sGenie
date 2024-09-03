@@ -3,10 +3,12 @@ module gitee.com/qiaogy91/K8sGenie
 go 1.23.0
 
 require (
+	gitee.com/qiaogy91/UserCenter v0.0.0-20240902070712-850914e686d5
 	github.com/BurntSushi/toml v1.4.0
 	github.com/caarlos0/env/v11 v11.2.2
 	github.com/emicklei/go-restful/v3 v3.12.1
 	github.com/go-playground/validator v9.31.0+incompatible
+	github.com/gorilla/websocket v1.5.3
 	github.com/rancher/norman v0.0.0-20240708202514-a0127673d1b9
 	github.com/rancher/types v0.0.0-20220328215343-4370ff10ecd5
 	github.com/rs/zerolog v1.33.0
@@ -37,7 +39,6 @@ require (
 	github.com/google/gnostic-models v0.6.8 // indirect
 	github.com/google/gofuzz v1.2.0 // indirect
 	github.com/google/uuid v1.6.0 // indirect
-	github.com/gorilla/websocket v1.5.3 // indirect
 	github.com/imdario/mergo v0.3.12 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
@@ -53,6 +54,7 @@ require (
 	github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/rancher/wrangler/v3 v3.0.0 // indirect
+	github.com/rs/xid v1.5.0 // indirect
 	github.com/sirupsen/logrus v1.9.3 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
 	golang.org/x/net v0.27.0 // indirect
@@ -62,7 +64,6 @@ require (
 	golang.org/x/text v0.16.0 // indirect
 	golang.org/x/time v0.3.0 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20240730163845-b1a4ccb954bf // indirect
-	gopkg.in/go-playground/assert.v1 v1.2.1 // indirect
 	gopkg.in/inf.v0 v0.9.1 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect

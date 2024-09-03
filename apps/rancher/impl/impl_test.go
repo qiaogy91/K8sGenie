@@ -48,8 +48,8 @@ func TestImpl_DescProject(t *testing.T) {
 		//KeyWord:  "c-m-nnljl7c9:p-lv2jz",
 		//DescType: rancher.DESC_TYPE_DESC_TYPE_PROJECT_CODE,
 		//KeyWord:  "ehs",
-		DescType: rancher.DESC_TYPE_DESC_TYPE_PROJECT_DESC,
-		KeyWord:  "HS",
+		DescType: rancher.DESC_TYPE_DESC_TYPE_PROJECT_CODE,
+		KeyWord:  "asmp",
 	}
 	ins, err := c.DescProject(ctx, req)
 	if err != nil {
@@ -60,11 +60,11 @@ func TestImpl_DescProject(t *testing.T) {
 
 func TestImpl_QueryProject(t *testing.T) {
 	req := &rancher.QueryProjectReq{
-		//QueryType: rancher.QUERY_TYPE_QUERY_TYPE_PROJECT_LINE,
-		//KeyWord:   "协同效率",
+		//QueryType: rancher.QUERY_TYPE_QUERY_TYPE_CLUSTER_CODE,
+		//KeyWord:   "itcp-k8s-uat",
 
-		QueryType: rancher.QUERY_TYPE_QUERY_TYPE_CLUSTER_CODE,
-		KeyWord:   "itcp-k8s-uat",
+		QueryType: rancher.QUERY_TYPE_QUERY_TYPE_PROJECT_LINE,
+		KeyWord:   "协同效率",
 	}
 	ins, err := c.QueryProject(ctx, req)
 	if err != nil {

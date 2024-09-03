@@ -12,8 +12,8 @@ dep:
 
 build: dep
 	@GOOS=linux GOARCH=amd64 go build -o build/${PROJECT_NAME}-linux-x86_64 ${PROJECT_SRC}
-	@GOOS=darwin GOARCH=amd64 go build -o build/${PROJECT_NAME}-darwin-x86_64 ${PROJECT_SRC}
-	@GOOS=windows GOARCH=amd64 go build -o build/${PROJECT_NAME}-windows-x86_64.exe ${PROJECT_SRC}
+#	@GOOS=darwin GOARCH=amd64 go build -o build/${PROJECT_NAME}-darwin-x86_64 ${PROJECT_SRC}
+#	@GOOS=windows GOARCH=amd64 go build -o build/${PROJECT_NAME}-windows-x86_64.exe ${PROJECT_SRC}
 
 clean:
 	@rm -fr build/*

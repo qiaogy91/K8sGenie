@@ -59,9 +59,10 @@ func (i *Impl) sendCard(ctx context.Context, url string, data []byte) (*alert.Re
 // HandlerAlert 告警处理入口，AlertManager 会请求这个接口
 func (i *Impl) HandlerAlert(ctx context.Context, req *alert.HandlerAlertReq) (*alert.HandlerAlertRsp, error) {
 	rsp := &alert.HandlerAlertRsp{}
-	for _, alerts := range req.Alerts {
+	for idx, alerts := range req.Alerts {
+		fmt.Printf("[%d] 开始处理告警, %+v\n", idx, alerts)
 		// ******************** 获取路由信息 ****************************
-		route, err := i.r.AlertRoute(ctx, &router.AlertRouteReq{RobotName: alerts.Labels["robotName"], NamespaceName: alerts.Labels["namespace"]})
+		route, err := i.r.AlertRoute(ctx, &router.AlertRouteReq{ClusterName: alerts.Labels["cluster_name"], NamespaceName: alerts.Labels["namespace"]})
 		if err != nil {
 			return nil, err
 		}
@@ -123,12 +124,12 @@ func (i *Impl) renderTemplate(ctx context.Context, alerter *alert.Alert, route *
 		alertLevel       = alerter.Labels["level"]
 		alertSummary     = alerter.Annotations["summary"]
 		alertDescription = alerter.Annotations["description"]
-		alertCluster     = alerter.Labels["robotName"]
+		alertCluster     = alerter.Labels["cluster_name"]
 	)
 
 	switch ns, ok := alerter.Labels["namespace"]; {
 	case ok:
-		rsp, err := i.k.DescNamespace(ctx, &k8s.DescNamespaceReq{ClusterName: alerter.Labels["robotName"], NamespaceName: ns})
+		rsp, err := i.k.DescNamespace(ctx, &k8s.DescNamespaceReq{ClusterName: alerter.Labels["cluster_name"], NamespaceName: ns})
 
 		// 名称空间告警渲染：能够获取到项目信息的、以及获取不到项目信息的
 		if err != nil {

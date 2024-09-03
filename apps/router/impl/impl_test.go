@@ -55,7 +55,7 @@ func TestImpl_DeleteRoute(t *testing.T) {
 
 func TestImpl_AlertRoute(t *testing.T) {
 	req := &router.AlertRouteReq{
-		RobotName:     "itcp-k8s-uat",
+		ClusterName:   "itcp-k8s-uat",
 		NamespaceName: "crc-yourh-dev",
 	}
 	ins, err := c.AlertRoute(ctx, req)

@@ -46,9 +46,9 @@ func (i *Impl) DeleteRoute(ctx context.Context, req *router.DeleteRouteReq) (*ro
 func (i *Impl) AlertRoute(ctx context.Context, req *router.AlertRouteReq) (*router.Router, error) {
 	ins := &router.Router{}
 
-	// namespace 标签不存在，直接根据robot_name 路由
+	// namespace 标签不存在，直接根据ClusterName 路由
 	if req.NamespaceName == "" {
-		if err := i.db.WithContext(ctx).Model(&router.Router{}).Where("identity = ?", req.RobotName).First(ins).Error; err != nil {
+		if err := i.db.WithContext(ctx).Model(&router.Router{}).Where("identity = ?", req.ClusterName).First(ins).Error; err != nil {
 			return nil, err
 		} else {
 			return ins, nil
@@ -56,12 +56,12 @@ func (i *Impl) AlertRoute(ctx context.Context, req *router.AlertRouteReq) (*rout
 	}
 
 	// namespace 标签存在，尝试则查找对应的项目
-	pro, err := i.kc.DescNamespace(ctx, &k8s.DescNamespaceReq{ClusterName: req.RobotName, NamespaceName: req.NamespaceName})
+	pro, err := i.kc.DescNamespace(ctx, &k8s.DescNamespaceReq{ClusterName: req.ClusterName, NamespaceName: req.NamespaceName})
 
 	// 找不到Project，则进入默认路由
 	if err != nil {
 		// 默认路由
-		if err := i.db.WithContext(ctx).Model(&router.Router{}).Where("identity = ?", req.RobotName).First(ins).Error; err != nil {
+		if err := i.db.WithContext(ctx).Model(&router.Router{}).Where("identity = ?", req.ClusterName).First(ins).Error; err != nil {
 			return nil, err
 		} else {
 			return ins, nil
@@ -70,7 +70,7 @@ func (i *Impl) AlertRoute(ctx context.Context, req *router.AlertRouteReq) (*rout
 	// 找到了Project，尝试查找Project 对应的路由，如果找不到，则走默认路由
 	if err := i.db.WithContext(ctx).Model(&router.Router{}).Where("identity = ?", pro.Spec.ProjectId).First(ins).Error; err != nil {
 		// 默认路由
-		if err := i.db.WithContext(ctx).Model(&router.Router{}).Where("identity = ?", req.RobotName).First(ins).Error; err != nil {
+		if err := i.db.WithContext(ctx).Model(&router.Router{}).Where("identity = ?", req.ClusterName).First(ins).Error; err != nil {
 			return nil, err
 		} else {
 			return ins, nil

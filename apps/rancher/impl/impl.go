@@ -15,9 +15,9 @@ import (
 var _ rancher.Service = &Impl{}
 
 type Impl struct {
-	c   *managementV3.Client
 	db  *gorm.DB
 	adm []string // blacklist 用户在这个名单上的，不进行记录，过滤掉管理员
+	rcs map[string]*managementV3.Client
 	rancher.UnimplementedRpcServer
 }
 
@@ -28,22 +28,33 @@ func (i *Impl) Name() string {
 func (i *Impl) Init() error {
 	i.adm = []string{"qiaoguanyu", "zhangyuanzhao", "shipengfei", "admin"}
 
-	i.db = conf.C().GetMysqlPool()
+	i.db = conf.C().GetMysqlPool().Debug()
 
 	// init rancher client
-	clientOpts := &clientbase.ClientOpts{
+	client1, err := managementV3.NewClient(&clientbase.ClientOpts{
 		URL:        "https://itpub.crdigital.com.cn/v3",
 		TokenKey:   "token-wmlpc:bfrtz22ttcfzjvqzhbntn4lwp58v4794hn5nzh5xvhd86dz74k2shb",
 		Insecure:   true,
 		Timeout:    5 * time.Second,
 		HTTPClient: &http.Client{Transport: &http.Transport{}},
-	}
-
-	client, err := managementV3.NewClient(clientOpts)
+	})
 	if err != nil {
 		panic(err)
 	}
-	i.c = client
+	i.rcs["v2.0"] = client1
+
+	client2, err := managementV3.NewClient(&clientbase.ClientOpts{
+		URL:        "https://k8spro.crcloud.com/v3",
+		TokenKey:   "token-gw6m6:hnxc6jlj2m4ljfmzqsn42j68sqd4zblr4t6fkldrfljj2fs7f5kzwr",
+		Insecure:   true,
+		Timeout:    5 * time.Second,
+		HTTPClient: &http.Client{Transport: &http.Transport{}},
+	})
+	if err != nil {
+		panic(err)
+	}
+	i.rcs["v1.0"] = client2
+
 	return nil
 }
 
@@ -52,5 +63,6 @@ func (i *Impl) RegistrySvc(g *grpc.Server) {
 }
 
 func init() {
-	ioc.RegistryController(&Impl{})
+
+	ioc.RegistryController(&Impl{rcs: make(map[string]*managementV3.Client)})
 }
