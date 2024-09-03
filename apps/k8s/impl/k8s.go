@@ -12,7 +12,6 @@ import (
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	"sort"
-	"time"
 )
 
 func (i *Impl) CreateTable(ctx context.Context, empty *k8s.Empty) (*k8s.Empty, error) {
@@ -212,10 +211,7 @@ func (i *Impl) QueryK8SWorkload(ctx context.Context, req *k8s.QueryK8SWorkloadRe
 		return nil, err
 	}
 
-	// todo 这里应该只获取最新的数据
-	sTime := time.Now().Truncate(24 * time.Hour)
-	eTime := sTime.Add(24 * time.Hour)
-	sql := i.db.WithContext(ctx).Model(&k8s.WorkLoad{}).Where("created_at >= ? AND created_at < ?", sTime.Unix(), eTime.Unix())
+	sql := i.db.WithContext(ctx).Model(&k8s.WorkLoad{})
 
 	switch req.Type {
 	case k8s.SEARCH_TYPE_SEARCH_TYPE_ALL:
