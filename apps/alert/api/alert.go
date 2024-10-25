@@ -14,10 +14,7 @@ func (h *Handler) HandlerAlert(req *restful.Request, rsp *restful.Response) {
 		common.SendFailed(rsp, http.StatusBadRequest, err)
 		return
 	}
-	res, err := h.svc.HandlerAlert(req.Request.Context(), ins)
-	if err != nil {
-		common.SendFailed(rsp, http.StatusBadRequest, err)
-		return
-	}
-	common.SendSuccess(rsp, res)
+	// todo 这里要处理，不论什么情况都要返回 200 ，避免让 alertManager 收到错误
+	_, _ = h.svc.HandlerAlert(req.Request.Context(), ins)
+	common.SendSuccess(rsp, "ok")
 }

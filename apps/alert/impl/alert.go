@@ -49,6 +49,7 @@ func (i *Impl) sendCard(ctx context.Context, url string, data []byte) (*alert.Re
 
 	// rsp
 	content, _ := io.ReadAll(rsp.Body)
+	fmt.Printf("@@@@@@ %s\n", content)
 	ins := &alert.Response{}
 	if err := json.Unmarshal(content, ins); err != nil {
 		return nil, err
@@ -76,6 +77,7 @@ func (i *Impl) HandlerAlert(ctx context.Context, req *alert.HandlerAlertReq) (*a
 
 		// ******************** 发送数据 ****************************
 		res, err := i.sendCard(ctx, route.Spec.WebhookUrl, data)
+		fmt.Printf("@@@@@@@ 飞书的响应：\n%+v\n", rsp)
 		if err != nil {
 			common.L().Error().Msgf("sendCard failed: %v", err)
 			continue
@@ -122,7 +124,7 @@ func (i *Impl) renderTemplate(ctx context.Context, alerter *alert.Alert, route *
 	var (
 		alertName        = alerter.Labels["alertname"]
 		alertLevel       = alerter.Labels["level"]
-		alertSummary     = alerter.Annotations["summary"]
+		alertSummary     = alerter.Annotations["cron"]
 		alertDescription = alerter.Annotations["description"]
 		alertCluster     = alerter.Labels["cluster_name"]
 	)

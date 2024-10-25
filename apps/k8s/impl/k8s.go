@@ -70,9 +70,9 @@ func (i *Impl) handler(ctx context.Context, c *kubernetes.Clientset, stream k8s.
 		}
 
 		// - 处理 daemonSet
-		if err := i.handlerDaemonSet(ctx, c, pro, ns, stream); err != nil {
-			return err
-		}
+		//if err := i.handlerDaemonSet(ctx, c, pro, ns, stream); err != nil {
+		//	return err
+		//}
 
 		// - 处理 statefulSet
 		if err := i.handlerStatefulSet(ctx, c, pro, ns, stream); err != nil {
@@ -94,19 +94,21 @@ func (i *Impl) handlerDeployment(ctx context.Context, c *kubernetes.Clientset, p
 	for _, dep := range deps.Items {
 		var cpuTotal int64
 		var ramTotal int64
+
 		for _, c := range dep.Spec.Template.Spec.Containers {
 			cpuTotal += c.Resources.Limits.Cpu().Value()
 			ramTotal += c.Resources.Limits.Memory().Value()
 		}
 		ins := &k8s.WorkLoad{
 			Spec: &k8s.Spec{
-				Type:      k8s.Type_TYPE_DEPLOYMENT,
-				Namespace: dep.Namespace,
-				Name:      dep.Name,
-				Replicas:  *dep.Spec.Replicas,
-				Ram:       ramTotal / 1024 / 1024 / 1024,
-				Cpu:       cpuTotal,
-				ProjectId: pro.Spec.ProjectId,
+				Type:       k8s.Type_TYPE_DEPLOYMENT,
+				CreateTime: dep.GetCreationTimestamp().Format("2006/01/02"),
+				Namespace:  dep.Namespace,
+				Name:       dep.Name,
+				Replicas:   *dep.Spec.Replicas,
+				Ram:        ramTotal / 1024 / 1024,
+				Cpu:        cpuTotal,
+				ProjectId:  pro.Spec.ProjectId,
 			},
 		}
 
@@ -146,13 +148,14 @@ func (i *Impl) handlerDaemonSet(ctx context.Context, c *kubernetes.Clientset, pr
 		}
 		ins := &k8s.WorkLoad{
 			Spec: &k8s.Spec{
-				Type:      k8s.Type_TYPE_DAEMON_SET,
-				Namespace: d.Namespace,
-				Name:      d.Name,
-				Replicas:  int32(len(nodes.Items)),
-				Ram:       ramTotal / 1024 / 1024 / 1024,
-				Cpu:       cpuTotal,
-				ProjectId: pro.Spec.ProjectId,
+				Type:       k8s.Type_TYPE_DAEMON_SET,
+				CreateTime: d.GetCreationTimestamp().Format("2006/01/02"),
+				Namespace:  d.Namespace,
+				Name:       d.Name,
+				Replicas:   int32(len(nodes.Items)),
+				Ram:        ramTotal / 1024 / 1024,
+				Cpu:        cpuTotal,
+				ProjectId:  pro.Spec.ProjectId,
 			},
 		}
 
@@ -185,13 +188,14 @@ func (i *Impl) handlerStatefulSet(ctx context.Context, c *kubernetes.Clientset, 
 		}
 		ins := &k8s.WorkLoad{
 			Spec: &k8s.Spec{
-				Type:      k8s.Type_TYPE_STATEFUL_SET,
-				Namespace: st.Namespace,
-				Name:      st.Name,
-				Replicas:  *st.Spec.Replicas,
-				Ram:       ramTotal / 1024 / 1024 / 1024,
-				Cpu:       cpuTotal,
-				ProjectId: pro.Spec.ProjectId,
+				Type:       k8s.Type_TYPE_STATEFUL_SET,
+				CreateTime: st.GetCreationTimestamp().Format("2006/01/02"),
+				Namespace:  st.Namespace,
+				Name:       st.Name,
+				Replicas:   *st.Spec.Replicas,
+				Ram:        ramTotal / 1024 / 1024,
+				Cpu:        cpuTotal,
+				ProjectId:  pro.Spec.ProjectId,
 			},
 		}
 

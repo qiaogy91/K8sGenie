@@ -37,17 +37,18 @@ message Meta {
 message Spec {
     // @gotags: json:"type"
     Type type = 1;
+    string create_time = 2;
     // @gotags: json:"namespace"
-    string namespace = 2;
+    string namespace = 3;
     // @gotags: json:"name"
-    string name = 3;
+    string name = 4;
     // @gotags: json:"replicas"
-    int32 replicas = 4;
+    int32 replicas = 5;
     // @gotags: json:"ram"
-    int64 ram = 5;
+    int64 ram = 6;
     // @gotags: json:"cpu"
-    int64 cpu = 6;
+    int64 cpu = 7;
     // @gotags: json:"project_id"
-    string project_id = 7;
+    string project_id = 8;
 }
 

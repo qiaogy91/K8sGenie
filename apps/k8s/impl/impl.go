@@ -46,6 +46,9 @@ func (i *Impl) Init() error {
 
 	// 将各个集群的名称、以及对应的clientSet 做成Map
 	for name, _ := range apiConf.Contexts {
+		if name == "docker-desktop" {
+			continue
+		}
 		// ******************** 获取restConf ********************
 		restConf, err := clientcmd.BuildConfigFromKubeconfigGetter("", func() (*api.Config, error) {
 			apiConf.CurrentContext = name  // apiConf context 切换

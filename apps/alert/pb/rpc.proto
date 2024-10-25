@@ -31,6 +31,14 @@ message HandlerAlertRsp {
 message Response {
     int64 code = 1;
     string msg = 2;
+    ResponseMsg message = 3;
 }
 
+message ResponseMsg {
+    string message_id = 1;
+    string root_id = 2;
+    string parent_id = 3;
+    string thread_id = 4;
+    string chat_id = 5;
+}
 

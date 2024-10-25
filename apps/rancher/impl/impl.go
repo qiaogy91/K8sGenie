@@ -28,7 +28,7 @@ func (i *Impl) Name() string {
 func (i *Impl) Init() error {
 	i.adm = []string{"qiaoguanyu", "zhangyuanzhao", "shipengfei", "admin"}
 
-	i.db = conf.C().GetMysqlPool().Debug()
+	i.db = conf.C().GetMysqlPool()
 
 	// init rancher client
 	client1, err := managementV3.NewClient(&clientbase.ClientOpts{

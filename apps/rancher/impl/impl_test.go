@@ -44,12 +44,11 @@ func TestImpl_SyncResource(t *testing.T) {
 
 func TestImpl_DescProject(t *testing.T) {
 	req := &rancher.DescProjectReq{
-		//DescType: rancher.DESC_TYPE_DESC_TYPE_PROJECT_ID,
 		//KeyWord:  "c-m-nnljl7c9:p-lv2jz",
 		//DescType: rancher.DESC_TYPE_DESC_TYPE_PROJECT_CODE,
 		//KeyWord:  "ehs",
 		DescType: rancher.DESC_TYPE_DESC_TYPE_PROJECT_CODE,
-		KeyWord:  "asmp",
+		KeyWord:  "cmis",
 	}
 	ins, err := c.DescProject(ctx, req)
 	if err != nil {

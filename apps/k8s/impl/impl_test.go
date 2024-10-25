@@ -93,3 +93,13 @@ func TestImpl_QueryK8SWorkload(t *testing.T) {
 		t.Logf("%+v", pod)
 	}
 }
+
+func TestImpl_GetDeploymentSummary(t *testing.T) {
+	req := &k8s.GetDeploymentSummaryReq{
+		ClusterName: "crc-itcp-test-03",
+		Namespace:   "frp-uat-new",
+	}
+	if err := c.GetDeploymentSummary(ctx, req); err != nil {
+		t.Fatal(err)
+	}
+}
