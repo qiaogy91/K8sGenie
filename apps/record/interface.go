@@ -2,6 +2,7 @@ package record
 
 import (
 	"context"
+	"encoding/json"
 	"time"
 )
 
@@ -75,7 +76,7 @@ type QueryRecordService interface {
 }
 
 type QueryNamespaceRecordRequest struct {
-	CreatedTime string `json:"CreatedTime" validator:"required"` // 2014-08-02
+	CreatedTime string `json:"createdTime" validator:"required"` // 2014-08-02
 	ProjectCode string `json:"projectCode" validator:"required"` // ehs
 	ProjectLine string `json:"projectLine" validator:"required"` // 风控
 	ClusterName string `json:"clusterName" validator:"required"` // xc-k8s-uat
@@ -89,4 +90,19 @@ type QueryProjectRecordRequest struct {
 type QueryLineRecordRequest struct {
 	Month       string `json:"month" validator:"required"`       // 2014-08
 	ClusterName string `json:"clusterName" validator:"required"` // xc-k8s-uat
+}
+
+/*
+------------------------- CreateRecordService ------------------------------------------------------
+*/
+
+type StreamHandler func(data *StreamData)
+type StreamData struct {
+	Status  bool   `json:"status"`
+	Message string `json:"message"`
+}
+
+func (s *StreamData) PrettyJson() string {
+	bs, _ := json.MarshalIndent(s, "", " ")
+	return string(bs)
 }

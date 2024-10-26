@@ -19,7 +19,7 @@ type Impl struct {
 	cron       *cron.Cron
 }
 
-func (i *Impl) RegistrySvc(g *grpc.Server) { panic("implement me") }
+func (i *Impl) RegistrySvc(g *grpc.Server) {}
 func (i *Impl) Name() string               { return AppName }
 func (i *Impl) Init() error {
 	i.rancherSvc = ioc.GetController(rancher.AppName).(rancher.Service)
@@ -31,7 +31,7 @@ func (i *Impl) Init() error {
 
 	i.cron.Start()
 	// 0 0 3 */3 * *"
-	if _, err := i.cron.AddJob("0 */3 * * * *", i); err != nil {
+	if _, err := i.cron.AddJob("0 */30 * * * *", i); err != nil {
 		panic(err)
 	}
 	return nil

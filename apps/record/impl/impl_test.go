@@ -73,7 +73,7 @@ func TestImpl_CreateLineRecord(t *testing.T) {
 func TestImpl_QueryLineRecord(t *testing.T) {
 	req := &record.QueryLineRecordRequest{
 		Month:       "2024-10",
-		ClusterName: "crc-itcp-test03",
+		ClusterName: "crc-itcp-test-03",
 	}
 
 	ins, err := c.QueryLineRecord(ctx, req)
@@ -88,8 +88,8 @@ func TestImpl_QueryLineRecord(t *testing.T) {
 func TestImpl_QueryProjectRecord(t *testing.T) {
 	req := &record.QueryProjectRecordRequest{
 		Month:       "2024-10",
-		ProjectLine: "智能风控",
-		ClusterName: "crc-itcp-test03",
+		ProjectLine: "风控合规",
+		ClusterName: "crc-itcp-test-03",
 	}
 	ins, err := c.QueryProjectRecord(ctx, req)
 	if err != nil {
@@ -102,10 +102,10 @@ func TestImpl_QueryProjectRecord(t *testing.T) {
 
 func TestImpl_QueryNamespaceRecord(t *testing.T) {
 	req := &record.QueryNamespaceRecordRequest{
-		CreatedTime: "2024-10-25",
-		ProjectCode: "ehs",
-		ProjectLine: "智能风控",
-		ClusterName: "crc-itcp-test03",
+		CreatedTime: "2024-10-26",
+		ProjectCode: "adas",
+		ProjectLine: "风控合规",
+		ClusterName: "crc-itcp-test-03",
 	}
 	ins, err := c.QueryNamespaceRecord(ctx, req)
 	if err != nil {
