@@ -124,7 +124,7 @@ func (i *Impl) renderTemplate(ctx context.Context, alerter *alert.Alert, route *
 	var (
 		alertName        = alerter.Labels["alertname"]
 		alertLevel       = alerter.Labels["level"]
-		alertSummary     = alerter.Annotations["cron"]
+		alertSummary     = alerter.Annotations["record"]
 		alertDescription = alerter.Annotations["description"]
 		alertCluster     = alerter.Labels["cluster_name"]
 	)

@@ -14,5 +14,5 @@ import (
 	_ "gitee.com/qiaogy91/K8sGenie/apps/alert/api"
 	_ "gitee.com/qiaogy91/K8sGenie/apps/alert/impl"
 	// 05
-	_ "gitee.com/qiaogy91/K8sGenie/apps/cron/impl"
+	_ "gitee.com/qiaogy91/K8sGenie/apps/record/impl"
 )

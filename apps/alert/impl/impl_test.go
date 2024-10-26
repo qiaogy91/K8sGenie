@@ -32,7 +32,7 @@ func TestImpl_HandlerAlert(t *testing.T) {
 				},
 				Annotations: map[string]string{
 					"description": "test desc",
-					"cron":        "集群级别告警",
+					"record":      "集群级别告警",
 				},
 			},
 			// 名称空间级别告警
@@ -48,7 +48,7 @@ func TestImpl_HandlerAlert(t *testing.T) {
 			//	},
 			//	Annotations: map[string]string{
 			//		"description": "test desc",
-			//		"cron":     "名称空间级项目告警",
+			//		"record":     "名称空间级项目告警",
 			//	},
 			//},
 
@@ -65,7 +65,7 @@ func TestImpl_HandlerAlert(t *testing.T) {
 			//	},
 			//	Annotations: map[string]string{
 			//		"description": "test desc",
-			//		"cron":     "名称空间级项目告警",
+			//		"record":     "名称空间级项目告警",
 			//	},
 			//},
 		},

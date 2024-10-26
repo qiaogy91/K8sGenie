@@ -1,27 +1,26 @@
-package cron
+package record
 
 import (
 	"context"
 	"time"
 )
 
-const (
-	AppName = "cron"
-)
-
-type QueryRequest struct {
-	ClusterName string `json:"clusterName"` // 统计哪个集群
-	Month       string `json:"month"`       // 统计哪个月份
-}
+const AppName = "record"
 
 type Service interface {
+	CreateRecordService
+	QueryRecordService
+}
+
+/*
+------------------------- CreateRecordService ------------------------------------------------------
+*/
+
+type CreateRecordService interface {
 	CreateTable(ctx context.Context) error
 	CreateNamespaceRecord(ctx context.Context, req *CreateNamespaceRecordRequest) error // 创建Record
 	CreateProjectRecord(ctx context.Context, req *CreateProjectRecordRequest) error     // 创建Record
 	CreateLineRecord(ctx context.Context, req *CreateLineRecordRequest) error           // 创建Record
-	Run()
-	// Query 需要写3个查询方法、查询 namespace、project、line 三个级别的汇总数据
-	Query(ctx context.Context, req *QueryRequest)
 }
 
 type CreateNamespaceRecordRequest struct{}
@@ -63,4 +62,31 @@ func (r *CreateLineRecordRequest) TimeRage() (start int64, end int64, monthStr s
 	end = month.AddDate(0, 1, 0).Unix() - 1
 	monthStr = month.Format("2006-01")
 	return
+}
+
+/*
+------------------------- QueryRecordService ------------------------------------------------------
+*/
+
+type QueryRecordService interface {
+	QueryNamespaceRecord(ctx context.Context, req *QueryNamespaceRecordRequest) (*NamespaceRecordSet, error)
+	QueryProjectRecord(ctx context.Context, req *QueryProjectRecordRequest) (*ProjectRecordSet, error)
+	QueryLineRecord(ctx context.Context, req *QueryLineRecordRequest) (*LineRecordSet, error)
+}
+
+type QueryNamespaceRecordRequest struct {
+	CreatedTime string `json:"CreatedTime" validator:"required"` // 2014-08-02
+	ProjectCode string `json:"projectCode" validator:"required"` // ehs
+	ProjectLine string `json:"projectLine" validator:"required"` // 风控
+	ClusterName string `json:"clusterName" validator:"required"` // xc-k8s-uat
+}
+type QueryProjectRecordRequest struct {
+	Month       string `json:"month" validator:"required"` // 2014-08
+	ProjectLine string `json:"projectLine" validator:"required"`
+	ClusterName string `json:"clusterName" validator:"required"` // xc-k8s-uat
+
+}
+type QueryLineRecordRequest struct {
+	Month       string `json:"month" validator:"required"`       // 2014-08
+	ClusterName string `json:"clusterName" validator:"required"` // xc-k8s-uat
 }

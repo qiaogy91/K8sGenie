@@ -1,20 +1,20 @@
 package api
 
 import (
-	"gitee.com/qiaogy91/K8sGenie/apps/cron"
+	"gitee.com/qiaogy91/K8sGenie/apps/record"
 	"gitee.com/qiaogy91/K8sGenie/ioc"
 )
 
 type Handler struct {
-	svc cron.Service
+	svc record.Service
 }
 
 func (h *Handler) Name() string {
-	return cron.AppName
+	return record.AppName
 }
 
 func (h *Handler) Init() error {
-	h.svc = ioc.GetController(cron.AppName).(cron.Service)
+	h.svc = ioc.GetController(record.AppName).(record.Service)
 	return nil
 }
 
