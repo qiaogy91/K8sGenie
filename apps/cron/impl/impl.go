@@ -31,7 +31,7 @@ func (i *Impl) Init() error {
 
 	i.cron.Start()
 	// 0 0 3 */3 * *"
-	if _, err := i.cron.AddJob("0 */30 * * * *", i); err != nil {
+	if _, err := i.cron.AddJob("0 0 4 * * *", i); err != nil {
 		panic(err)
 	}
 	return nil

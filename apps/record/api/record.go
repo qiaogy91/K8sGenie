@@ -38,8 +38,7 @@ func (h *Handler) CreateProjectRecord(r *restful.Request, w *restful.Response) {
 		common.SendFailed(w, http.StatusInternalServerError, err)
 		return
 	}
-	common.SendSuccess(w, "namespace record create success")
-
+	common.SendSuccess(w, "project record create success")
 }
 func (h *Handler) CreateLineRecord(r *restful.Request, w *restful.Response) {
 	req := &record.CreateLineRecordRequest{}
@@ -53,7 +52,7 @@ func (h *Handler) CreateLineRecord(r *restful.Request, w *restful.Response) {
 		common.SendFailed(w, http.StatusInternalServerError, err)
 		return
 	}
-	common.SendSuccess(w, "namespace record create success")
+	common.SendSuccess(w, "cluster record create success")
 }
 
 /*
@@ -62,7 +61,7 @@ func (h *Handler) CreateLineRecord(r *restful.Request, w *restful.Response) {
 
 func (h *Handler) QueryNamespaceRecord(r *restful.Request, w *restful.Response) {
 	req := &record.QueryNamespaceRecordRequest{
-		CreatedTime: r.QueryParameter("createdTime"),
+		CreatedAt:   r.QueryParameter("createdAt"),
 		ProjectCode: r.QueryParameter("projectCode"),
 		ProjectLine: r.QueryParameter("projectLine"),
 		ClusterName: r.QueryParameter("clusterName"),

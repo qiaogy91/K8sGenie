@@ -27,7 +27,7 @@ type CreateRecordService interface {
 type CreateNamespaceRecordRequest struct{}
 type CreateProjectRecordRequest struct {
 	MonthTime   string `json:"monthTime"`
-	ClusterName string `json:"cluster_name"`
+	ClusterName string `json:"clusterName"`
 }
 
 func (r *CreateProjectRecordRequest) TimeRage() (start int64, end int64, monthStr string, err error) {
@@ -36,7 +36,9 @@ func (r *CreateProjectRecordRequest) TimeRage() (start int64, end int64, monthSt
 
 	if r.MonthTime != "" {
 		month, err = time.Parse("2006-01", r.MonthTime)
-		return 0, 0, "", err
+		if err != nil {
+			return 0, 0, "", err
+		}
 
 	}
 	start = month.Unix()
@@ -46,8 +48,8 @@ func (r *CreateProjectRecordRequest) TimeRage() (start int64, end int64, monthSt
 }
 
 type CreateLineRecordRequest struct {
-	MonthTime   string `json:"monthTime"`
-	ClusterName string `json:"cluster_name"`
+	MonthTime   string `json:"monthTime" validate:"required"`
+	ClusterName string `json:"clusterName" validate:"required"`
 }
 
 func (r *CreateLineRecordRequest) TimeRage() (start int64, end int64, monthStr string, err error) {
@@ -56,7 +58,9 @@ func (r *CreateLineRecordRequest) TimeRage() (start int64, end int64, monthStr s
 
 	if r.MonthTime != "" {
 		month, err = time.Parse("2006-01", r.MonthTime)
-		return 0, 0, "", err
+		if err != nil {
+			return 0, 0, "", err
+		}
 
 	}
 	start = month.Unix()
@@ -76,7 +80,7 @@ type QueryRecordService interface {
 }
 
 type QueryNamespaceRecordRequest struct {
-	CreatedTime string `json:"createdTime" validator:"required"` // 2014-08-02
+	CreatedAt   string `json:"createdAt" validator:"required"`   // 2014-08-01
 	ProjectCode string `json:"projectCode" validator:"required"` // ehs
 	ProjectLine string `json:"projectLine" validator:"required"` // 风控
 	ClusterName string `json:"clusterName" validator:"required"` // xc-k8s-uat

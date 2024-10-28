@@ -114,7 +114,8 @@ func (i *Impl) CreateProjectRecord(ctx context.Context, req *record.CreateProjec
 	}
 
 	// 删除当月数据
-	if err := i.db.WithContext(ctx).Where("month = ?", month).Delete(&record.ProjectRecord{}).Error; err != nil {
+	fmt.Printf("@@@@@@ 将要删除当月数据 %s \n", month)
+	if err := i.db.Debug().WithContext(ctx).Where("month = ?", month).Delete(&record.ProjectRecord{}).Error; err != nil {
 		return err
 	}
 
@@ -148,6 +149,7 @@ func (i *Impl) CreateLineRecord(ctx context.Context, req *record.CreateLineRecor
 	}
 
 	// 删除当月数据
+	fmt.Printf("@@@@@@ 将要删除当月数据 %s \n", month)
 	if err := i.db.WithContext(ctx).Where("month = ?", month).Delete(&record.LineRecord{}).Error; err != nil {
 		return err
 	}

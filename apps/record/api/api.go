@@ -23,38 +23,46 @@ func (h *Handler) Init() error {
 
 func (h *Handler) RegistryRoute(p string) {
 	ws := new(restful.WebService)
-	ws.Path(path.Join("/api/v1", p, record.AppName)).Consumes(restful.MIME_JSON).Produces(restful.MIME_JSON)
 
+	ws.Path(path.Join("/api/v1", p, record.AppName)).Consumes(restful.MIME_JSON).Produces(restful.MIME_JSON)
 	ws.Route(ws.POST("namespace").To(h.CreateNamespaceRecord).
 		Metadata("auth", true).
 		Metadata("perm", true).
 		Metadata("audit", true).
 		Metadata("resource", k8s.AppName).
-		Metadata("action", "sync").
+		Metadata("action", "create").
 		Doc("同步名称空间级用量"))
 
 	ws.Route(ws.POST("project").To(h.CreateProjectRecord).
 		Metadata("auth", true).
 		Metadata("perm", true).
-		Metadata("audit", true).
+		Metadata("audit", false).
 		Metadata("resource", k8s.AppName).
-		Metadata("action", "sync").
+		Metadata("action", "create").
 		Doc("同步集群项目级用量"))
 
 	ws.Route(ws.POST("cluster").To(h.CreateLineRecord).
 		Metadata("auth", true).
-		Metadata("perm", true).
-		Metadata("audit", true).
+		Metadata("perm", false).
+		Metadata("audit", false).
 		Metadata("resource", k8s.AppName).
-		Metadata("action", "sync").
+		Metadata("action", "create").
 		Doc("同步集群产线级用量"))
+
+	ws.Route(ws.GET("cluster").To(h.QueryLineRecord).
+		Metadata("auth", false).
+		Metadata("perm", false).
+		Metadata("audit", false).
+		Metadata("resource", k8s.AppName).
+		Metadata("action", "list").
+		Doc("获取集群产线级用量"))
 
 	ws.Route(ws.GET("namespace").To(h.QueryNamespaceRecord).
 		Metadata("auth", false).
 		Metadata("perm", false).
 		Metadata("audit", false).
 		Metadata("resource", k8s.AppName).
-		Metadata("action", "sync").
+		Metadata("action", "list").
 		Doc("获取名称空间级用量"))
 
 	ws.Route(ws.GET("project").To(h.QueryProjectRecord).
@@ -62,19 +70,10 @@ func (h *Handler) RegistryRoute(p string) {
 		Metadata("perm", false).
 		Metadata("audit", false).
 		Metadata("resource", k8s.AppName).
-		Metadata("action", "sync").
+		Metadata("action", "list").
 		Doc("获取集群项目级用量"))
 
-	ws.Route(ws.GET("cluster").To(h.QueryLineRecord).
-		Metadata("auth", false).
-		Metadata("perm", false).
-		Metadata("audit", false).
-		Metadata("resource", k8s.AppName).
-		Metadata("action", "sync").
-		Doc("获取集群产线级用量"))
-
 	restful.Add(ws)
-
 }
 
 func init() {
