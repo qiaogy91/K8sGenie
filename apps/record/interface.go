@@ -79,13 +79,13 @@ type QueryRecordService interface {
 
 type QueryNamespaceRecordRequest struct {
 	CreatedAt   string `json:"createdAt" validator:"required"`   // 2014-08-01
-	ProjectCode string `json:"projectCode" validator:"required"` // ehs
+	ProjectCode string `json:"projectCode"`                      // ehs
 	ProjectLine string `json:"projectLine" validator:"required"` // 风控
 	ClusterName string `json:"clusterName" validator:"required"` // xc-k8s-uat
 }
 type QueryProjectRecordRequest struct {
 	Month       string `json:"month" validator:"required"` // 2014-08
-	ProjectLine string `json:"projectLine" validator:"required"`
+	ProjectLine string `json:"projectLine"`
 	ClusterName string `json:"clusterName" validator:"required"` // xc-k8s-uat
 
 }

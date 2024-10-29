@@ -2,6 +2,7 @@ package impl
 
 import (
 	"context"
+	"fmt"
 	"gitee.com/qiaogy91/K8sGenie/apps/record"
 	"github.com/go-playground/validator"
 	"time"
@@ -22,15 +23,20 @@ func (i *Impl) QueryNamespaceRecord(ctx context.Context, req *record.QueryNamesp
 	end := start + 24*60*60
 
 	ins := &record.NamespaceRecordSet{}
-	sql := i.db.Debug().
-		WithContext(ctx).
-		Model(&record.NamespaceRecord{}).
-		Where("cluster_name = ? AND project_line = ? AND project_code = ?", req.ClusterName, req.ProjectLine, req.ProjectCode).
-		Where("created_at >= ? AND  created_at <= ?", start, end)
+
+	query := i.db.Debug().WithContext(ctx).Where("cluster_name = ? AND project_line = ? AND project_code = ?", req.ClusterName, req.ProjectLine, req.ProjectCode)
+	if req.ProjectCode == "" {
+		query = i.db.Debug().WithContext(ctx).Where("cluster_name = ? AND project_line = ?", req.ClusterName, req.ProjectLine)
+	}
+
+	sql := query.Where("created_at >= ? AND  created_at <= ?", start, end)
 
 	if err := sql.Find(ins).Error; err != nil {
 		return nil, err
 	}
+
+	// 获取百分比
+	ins.GetPercent()
 	return ins, nil
 }
 
@@ -42,10 +48,20 @@ func (i *Impl) QueryProjectRecord(ctx context.Context, req *record.QueryProjectR
 		return nil, err
 	}
 
+	fmt.Printf("@@@@@@ %+v\n", req)
+
+	query := sql.Where("month = ? AND cluster_name = ? And project_line = ?", req.Month, req.ClusterName, req.ProjectLine)
+	if req.ProjectLine == "" {
+		query = sql.Where("month = ? AND cluster_name = ?", req.Month, req.ClusterName)
+	}
+
 	ins := &record.ProjectRecordSet{}
-	if err := sql.Where("month = ? AND cluster_name = ? And project_line = ?", req.Month, req.ClusterName, req.ProjectLine).Find(ins).Error; err != nil {
+	if err := query.Find(ins).Error; err != nil {
 		return nil, err
 	}
+
+	// 获取百分比
+	ins.GetPercent()
 	return ins, nil
 }
 
@@ -61,5 +77,8 @@ func (i *Impl) QueryLineRecord(ctx context.Context, req *record.QueryLineRecordR
 	if err := sql.Where("month = ? AND cluster_name = ?", req.Month, req.ClusterName).Find(ins).Error; err != nil {
 		return nil, err
 	}
+
+	// 计算百分比
+	ins.GetPercent()
 	return ins, nil
 }
