@@ -106,7 +106,7 @@ func (i *Impl) CreateNamespaceRecord(ctx context.Context, req *record.CreateName
 
 // CreateProjectRecord 汇总项目用量分布
 func (i *Impl) CreateProjectRecord(ctx context.Context, req *record.CreateProjectRecordRequest) error {
-	sql := i.db.WithContext(ctx).Model(&record.NamespaceRecord{})
+
 	// 时间解析
 	start, end, month, err := req.TimeRage()
 	if err != nil {
@@ -114,17 +114,15 @@ func (i *Impl) CreateProjectRecord(ctx context.Context, req *record.CreateProjec
 	}
 
 	// 删除当月数据
-	fmt.Printf("@@@@@@ 将要删除当月数据 %s \n", month)
 	if err := i.db.Debug().WithContext(ctx).Where("month = ?", month).Delete(&record.ProjectRecord{}).Error; err != nil {
 		return err
 	}
 
 	// 过滤出数据
 	nsSet := &record.ProjectRecordSet{}
-	ql := fmt.Sprintf("cluster_name, project_line, project_desc, project_code, SUM(weight) as weight, '%s' as month", month)
-
+	sql := i.db.WithContext(ctx).Model(&record.NamespaceRecord{})
 	if err := sql.Debug().
-		Select(ql).
+		Select(fmt.Sprintf("cluster_name, project_line, project_desc, project_code, SUM(weight) as weight, '%s' as month", month)).
 		Where("created_at >= ? AND created_at <=?", start, end).
 		Group("cluster_name, project_line, project_desc, project_code").
 		Find(nsSet).
@@ -141,25 +139,25 @@ func (i *Impl) CreateProjectRecord(ctx context.Context, req *record.CreateProjec
 
 // CreateLineRecord 汇总产线用量情况
 func (i *Impl) CreateLineRecord(ctx context.Context, req *record.CreateLineRecordRequest) error {
-	sql := i.db.WithContext(ctx).Model(&record.NamespaceRecord{})
+
 	// 时间解析
 	start, end, month, err := req.TimeRage()
 	if err != nil {
 		return err
 	}
 
-	// 删除当月数据
+	// 删除 line_record 表中当月数据
 	fmt.Printf("@@@@@@ 将要删除当月数据 %s \n", month)
 	if err := i.db.WithContext(ctx).Where("month = ?", month).Delete(&record.LineRecord{}).Error; err != nil {
 		return err
 	}
 
-	// 过滤出数据
+	// 从 namespace_records 表中过滤出数据，放入 line_records 表中
 	lineSet := &record.LineRecordSet{}
-	ql := fmt.Sprintf("cluster_name, project_line, SUM(weight) as weight, '%s' as month", month)
+	sql := i.db.WithContext(ctx).Model(&record.NamespaceRecord{})
 
-	if err := sql.Debug().
-		Select(ql).
+	if err := sql.
+		Select(fmt.Sprintf("cluster_name, project_line, SUM(weight) as weight, '%s' as month", month)).
 		Where("created_at >= ? AND created_at <=?", start, end).
 		Group("cluster_name, project_line").
 		Find(lineSet).

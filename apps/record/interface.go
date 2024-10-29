@@ -26,8 +26,7 @@ type CreateRecordService interface {
 
 type CreateNamespaceRecordRequest struct{}
 type CreateProjectRecordRequest struct {
-	MonthTime   string `json:"monthTime"`
-	ClusterName string `json:"clusterName"`
+	MonthTime string `json:"monthTime"`
 }
 
 func (r *CreateProjectRecordRequest) TimeRage() (start int64, end int64, monthStr string, err error) {
@@ -48,8 +47,7 @@ func (r *CreateProjectRecordRequest) TimeRage() (start int64, end int64, monthSt
 }
 
 type CreateLineRecordRequest struct {
-	MonthTime   string `json:"monthTime" validate:"required"`
-	ClusterName string `json:"clusterName" validate:"required"`
+	MonthTime string `json:"monthTime" validate:"required"`
 }
 
 func (r *CreateLineRecordRequest) TimeRage() (start int64, end int64, monthStr string, err error) {

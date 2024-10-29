@@ -102,7 +102,6 @@ func TestImpl_QueryProjectRecord(t *testing.T) {
 
 func TestImpl_QueryNamespaceRecord(t *testing.T) {
 	req := &record.QueryNamespaceRecordRequest{
-		CreatedTime: "2024-10-26",
 		ProjectCode: "adas",
 		ProjectLine: "风控合规",
 		ClusterName: "crc-itcp-test-03",

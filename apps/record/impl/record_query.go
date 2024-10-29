@@ -21,7 +21,6 @@ func (i *Impl) QueryNamespaceRecord(ctx context.Context, req *record.QueryNamesp
 	start := t.Unix()
 	end := start + 24*60*60
 
-	// todo 时间过滤后续添加
 	ins := &record.NamespaceRecordSet{}
 	sql := i.db.Debug().
 		WithContext(ctx).
