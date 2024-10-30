@@ -7,8 +7,8 @@ import (
 )
 
 func (i *Impl) Run() {
-	i.RancherTask()
-	i.K8sTask()
+	//i.RancherTask()
+	//i.K8sTask()
 	i.RecordTask()
 }
 

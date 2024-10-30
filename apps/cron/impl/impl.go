@@ -1,6 +1,7 @@
 package impl
 
 import (
+	mycron "gitee.com/qiaogy91/K8sGenie/apps/cron"
 	"gitee.com/qiaogy91/K8sGenie/apps/k8s"
 	"gitee.com/qiaogy91/K8sGenie/apps/rancher"
 	"gitee.com/qiaogy91/K8sGenie/apps/record"
@@ -10,8 +11,6 @@ import (
 	"time"
 )
 
-const AppName = "cronManager"
-
 type Impl struct {
 	rancherSvc rancher.Service
 	k8sSvc     k8s.Service
@@ -20,7 +19,7 @@ type Impl struct {
 }
 
 func (i *Impl) RegistrySvc(g *grpc.Server) {}
-func (i *Impl) Name() string               { return AppName }
+func (i *Impl) Name() string               { return mycron.AppName }
 func (i *Impl) Init() error {
 	i.rancherSvc = ioc.GetController(rancher.AppName).(rancher.Service)
 	i.k8sSvc = ioc.GetController(k8s.AppName).(k8s.Service)
@@ -30,10 +29,11 @@ func (i *Impl) Init() error {
 	i.cron = cron.New(cron.WithSeconds(), cron.WithLocation(loc))
 
 	i.cron.Start()
-	// 0 0 3 */3 * *"
+	//0 0 3 */3 * *"
 	if _, err := i.cron.AddJob("0 0 4 * * *", i); err != nil {
 		panic(err)
 	}
+	//i.Run()
 	return nil
 }
 

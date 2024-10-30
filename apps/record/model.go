@@ -39,7 +39,7 @@ type NamespaceWightSet []*NamespaceWight
 type NamespaceWight struct {
 	Namespace string  `json:"namespace"`
 	Weight    int     `json:"weight"`
-	Percent   float64 `json:"percent"`
+	Percent   float64 `json:"percent" gorm:"-"`
 }
 
 /*
@@ -60,7 +60,7 @@ type ProjectWight struct {
 	ProjectDesc string  `json:"project_desc"`
 	ProjectCode string  `json:"project_code"`
 	Weight      int     `json:"weight"`
-	Percent     float64 `json:"percent"`
+	Percent     float64 `json:"percent" gorm:"-"`
 }
 
 func (s *ProjectRecordSet) GetPercent() {
@@ -86,7 +86,7 @@ type LineRecord struct {
 	ProjectLine string  `json:"project_line"`
 	Month       string  `json:"month"`
 	Weight      int     `json:"weight"`
-	Percent     float64 `json:"percent"`
+	Percent     float64 `json:"percent" gorm:"-"`
 }
 
 func (s *LineRecordSet) GetPercent() {
