@@ -5,18 +5,21 @@ import (
 )
 
 type Service interface {
-	GetAccessToken(ctx context.Context, req *GetAccessTokenRequest) (*GetAccessTokenResponse, error)
-	FetchUserId(ctx context.Context, req *FetchUserIdRequest) (*FetchUserIdResponse, error)
-	SendMessage(ctx context.Context, req *SendMessageRequest) (*SendMessageResponse, error)
-	UrgentCall(ctx context.Context, req *UrgentCallRequest) (*UrgentCallResponse, error)
+	CreateTable(ctx context.Context) error
+	CallAndAudit(ctx context.Context, req *CallAndAuditRequest) error
 }
 
-// UrgentCallRequest UrgentCallResponse 消息加急
-type UrgentCallRequest struct {
+type CallAndAuditRequest struct {
+	Users   map[string]string `json:"users" gorm:"json"` // {"zhangSan": "110"}
+	Content string            `json:"content"`
+}
+
+// UrgentMarkRequest UrgentCallResponse 消息加急
+type UrgentMarkRequest struct {
 	UserIdList []string `json:"user_id_list"`
 	MessageId  string   `json:"message_id"`
 }
-type UrgentCallResponse struct {
+type UrgentMarkResponse struct {
 	Code int    `json:"code"`
 	Msg  string `json:"msg"`
 }

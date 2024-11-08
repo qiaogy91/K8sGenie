@@ -13,7 +13,13 @@ type Config struct {
 	Http    *Http    `toml:"http" json:"http"`
 	Grpc    *Grpc    `toml:"grpc" json:"grpc"`
 	Mysql   *Mysql   `toml:"mysql" json:"mysql"`
-	Rancher *Rancher `toml:"rancher" json:"reancher"`
+	Rancher *Rancher `toml:"rancher" json:"rancher"`
+	QARobot *QARobot `toml:"QARobot" json:"QARobot"`
+}
+
+type QARobot struct {
+	AppID     string `json:"appID" toml:"appID"`
+	AppSecret string `json:"appSecret" toml:"appSecret"`
 }
 
 type Rancher struct {

@@ -25,3 +25,8 @@ addr = "127.0.0.1"
 port = 18080
 token = "redhatxxoo"
 kube_file = "/Users/qiaogy/.kube/config"
+
+
+[QARobot]
+appID = "cli_9e063da4943a1008"
+appSecret = "DTRJz5iWdqbjZEbCE6FB8waYQzYEMexH"
