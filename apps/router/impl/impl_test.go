@@ -75,8 +75,8 @@ func TestImpl_AlertRoute(t *testing.T) {
 
 func TestImpl_QueryRoute(t *testing.T) {
 	req := &router.QueryRouteReq{
-		Type:    router.QUERY_TYPE_QUERY_TYPE_BY_CLUSTER_CODE,
-		Keyword: "itcp-k8s-uat",
+		Type:    router.QUERY_TYPE_QUERY_TYPE_BY_ID,
+		Keyword: "2",
 		//Type:    router.QUERY_TYPE_QUERY_TYPE_BY_PROJECT_LINE,
 		//Keyword: "创新学习",
 	}

@@ -23,8 +23,9 @@ message Spec {
     string webhook_token = 3;
     // @gotags: gorm:"-"
     resourcer.Spec project_spec = 4;
+    bool urgent_call = 5;
     // @gotags: gorm:"json"
-    repeated Users users = 5;
+    repeated Users users = 6;
 
 }
 

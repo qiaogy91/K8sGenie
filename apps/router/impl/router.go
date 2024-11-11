@@ -93,6 +93,9 @@ func (i *Impl) QueryRoute(ctx context.Context, req *router.QueryRouteReq) (*rout
 
 		sql = sql.Where("identity = ?", req.Keyword)
 
+	case router.QUERY_TYPE_QUERY_TYPE_BY_ID:
+		sql = sql.Where("id = ?", req.Keyword)
+
 	case router.QUERY_TYPE_QUERY_TYPE_BY_PROJECT_LINE:
 		// 查询这个产线下的所有 project
 		ps, err := i.rc.QueryProject(ctx, &rancher.QueryProjectReq{QueryType: rancher.QUERY_TYPE_QUERY_TYPE_PROJECT_LINE, KeyWord: req.Keyword})

@@ -14,7 +14,6 @@ import (
 	"io"
 	"k8s.io/apimachinery/pkg/util/json"
 	"net/http"
-	"strings"
 	"time"
 )
 
@@ -83,11 +82,11 @@ func (i *Impl) HandlerAlert(ctx context.Context, req *alert.HandlerAlertReq) (*a
 		rsp.Rsp = append(rsp.Rsp, res)
 
 		// ******************** 电话加急告警 ****************************
-		// todo 进入加急告警流程
-
+		if !route.Spec.UrgentCall {
+			continue
+		}
 		for _, usr := range route.Spec.Users {
 			urgentReq := &alert.UrgentAlertCallRequest{Users: usr, Alert: alerts}
-
 			if _, err := i.UrgentAlertCall(ctx, urgentReq); err != nil {
 				common.L().Error().Msgf("UrgentAlertCall err, %v", err.Error())
 				continue
@@ -95,16 +94,16 @@ func (i *Impl) HandlerAlert(ctx context.Context, req *alert.HandlerAlertReq) (*a
 		}
 
 		// ******************** 自愈操作链 ****************************
-		actions, ok := alerts.Labels["actions"]
-		if !ok {
-			continue
-		}
-		for _, action := range strings.Split(actions, ",") {
-			if err := i.RecoveryAction(ctx, alerts, action); err != nil {
-				common.L().Error().Msgf("RecoveryAction failed: %v", err)
-				continue
-			}
-		}
+		// actions, ok := alerts.Labels["actions"]
+		//if !ok {
+		//	continue
+		//}
+		//for _, action := range strings.Split(actions, ",") {
+		//	if err := i.RecoveryAction(ctx, alerts, action); err != nil {
+		//		common.L().Error().Msgf("RecoveryAction failed: %v", err)
+		//		continue
+		//	}
+		//}
 	}
 	return rsp, nil
 }
