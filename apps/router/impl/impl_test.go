@@ -29,12 +29,20 @@ func TestImpl_CreateRoute(t *testing.T) {
 		Identity:     "itcp-k8s-uat",
 		WebhookUrl:   "https://open.rwork.crc.com.cn/open-apis/bot/v2/hook/680fc048-24d8-413d-a3c2-4d0297e66048",
 		WebhookToken: "DUJbdqoPWa94mBdsD6HSfb",
+		Users: []*router.Users{
+			{Username: "qiaogy", Phone: "18192106883"},
+			{Username: "liangchuanj", Phone: "15302743009"},
+		},
 	}
 	// 项目级别告警
 	req2 := &router.Spec{
 		Identity:     "c-m-nnljl7c9:p-76q6t",
 		WebhookUrl:   "https://open.rwork.crc.com.cn/open-apis/bot/v2/hook/395fb852-7884-45da-880c-e2290ad2698e",
 		WebhookToken: "w8mKUHSZi4nEoMRqvVtFCb",
+		Users: []*router.Users{
+			{Username: "qiaogy", Phone: "18192106883"},
+			{Username: "liangchuanj", Phone: "15302743009"},
+		},
 	}
 
 	ins, err := c.CreateRoute(ctx, req1)

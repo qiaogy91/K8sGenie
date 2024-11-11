@@ -49,7 +49,6 @@ func (i *Impl) sendCard(ctx context.Context, url string, data []byte) (*alert.Re
 
 	// rsp
 	content, _ := io.ReadAll(rsp.Body)
-	fmt.Printf("@@@@@@ %s\n", content)
 	ins := &alert.Response{}
 	if err := json.Unmarshal(content, ins); err != nil {
 		return nil, err
@@ -77,12 +76,24 @@ func (i *Impl) HandlerAlert(ctx context.Context, req *alert.HandlerAlertReq) (*a
 
 		// ******************** 发送数据 ****************************
 		res, err := i.sendCard(ctx, route.Spec.WebhookUrl, data)
-		fmt.Printf("@@@@@@@ 飞书的响应：\n%+v\n", rsp)
 		if err != nil {
 			common.L().Error().Msgf("sendCard failed: %v", err)
 			continue
 		}
 		rsp.Rsp = append(rsp.Rsp, res)
+
+		// ******************** 电话加急告警 ****************************
+		// todo 进入加急告警流程
+
+		for _, usr := range route.Spec.Users {
+			urgentReq := &alert.UrgentAlertCallRequest{Users: usr, Alert: alerts}
+
+			if _, err := i.UrgentAlertCall(ctx, urgentReq); err != nil {
+				common.L().Error().Msgf("UrgentAlertCall err, %v", err.Error())
+				continue
+			}
+		}
+
 		// ******************** 自愈操作链 ****************************
 		actions, ok := alerts.Labels["actions"]
 		if !ok {

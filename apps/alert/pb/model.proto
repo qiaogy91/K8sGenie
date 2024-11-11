@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package K8sGenie.alert;
+
+import "apps/router/pb/model.proto";
+
+
+option go_package = "gitee.com/qiaogy91/K8sGenie/apps/alert";
+
+
+message UrgentAlert {
+    int64 created_at = 1;
+    // @gotags: gorm:"embedded"
+    router.Users users = 2;
+    string content = 3;
+    int64 code = 4;
+    string msg = 5;
+}

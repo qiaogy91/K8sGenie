@@ -2,12 +2,16 @@ syntax = "proto3";
 
 package K8sGenie.alert;
 
+import "apps/alert/pb/model.proto";
+import "apps/router/pb/model.proto";
+
 
 option go_package = "gitee.com/qiaogy91/K8sGenie/apps/alert";
 
 
 service Rpc {
     rpc HandlerAlert (HandlerAlertReq) returns (HandlerAlertRsp);
+    rpc UrgentAlertCall (UrgentAlertCallRequest) returns (UrgentAlert);
 }
 
 message HandlerAlertReq {
@@ -33,7 +37,6 @@ message Response {
     string msg = 2;
     ResponseMsg message = 3;
 }
-
 message ResponseMsg {
     string message_id = 1;
     string root_id = 2;
@@ -42,3 +45,9 @@ message ResponseMsg {
     string chat_id = 5;
 }
 
+
+
+message UrgentAlertCallRequest {
+    router.Users users = 1;
+    Alert alert = 2;
+}

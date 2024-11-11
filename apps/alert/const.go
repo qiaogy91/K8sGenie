@@ -42,3 +42,35 @@ const CardTemplate = `{
         }
     }
 }`
+
+const UrgentCardTemplate = `{
+		"config": {
+            "wide_screen_mode": true
+        },
+        "elements": [
+            {
+                "tag": "markdown",
+                "content": "%s"
+            },
+            {
+                "tag": "markdown",
+                "content": "%s"
+            },
+            {
+                "tag": "note",
+                "elements": [
+                    {
+                        "tag": "plain_text",
+                        "content": "IT 公共服务部运维项目"
+                    }
+                ]
+            }
+        ],
+        "header": {
+            "template": "%s",
+            "title": {
+                "content": "%s",
+                "tag": "plain_text"
+            }
+        }
+}`

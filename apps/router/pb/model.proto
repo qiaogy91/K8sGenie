@@ -23,6 +23,9 @@ message Spec {
     string webhook_token = 3;
     // @gotags: gorm:"-"
     resourcer.Spec project_spec = 4;
+    // @gotags: gorm:"json"
+    repeated Users users = 5;
+
 }
 
 message Router {
@@ -30,5 +33,9 @@ message Router {
     Meta meta = 1;
     // @gotags: json:"spec" gorm:"embedded"
     Spec spec = 2;
+}
 
+message Users {
+    string username = 1;
+    string phone = 2;
 }

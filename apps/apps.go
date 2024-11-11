@@ -20,7 +20,5 @@ import (
 
 	// 06
 	_ "gitee.com/qiaogy91/K8sGenie/apps/cron/impl"
-
-	// 07
-	_ "gitee.com/qiaogy91/K8sGenie/apps/feishu/impl"
+	//_ "gitee.com/qiaogy91/K8sGenie/apps/feishu/impl"
 )
