@@ -26,7 +26,6 @@ message Spec {
     bool urgent_call = 5;
     // @gotags: gorm:"json"
     repeated Users users = 6;
-
 }
 
 message Router {

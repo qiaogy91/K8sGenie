@@ -15,8 +15,22 @@ service Rpc {
     rpc CreateRoute (Spec) returns (Router);
     rpc DeleteRoute (DeleteRouteReq) returns (Router);
     rpc QueryRoute (QueryRouteReq) returns (RouterSet);
+    rpc UpdateRoute(UpdateRouteReq) returns (Router);
+
+    rpc UrgentChange(UrgentChangeReq)returns (Router);
     // 告警路由
     rpc AlertRoute (AlertRouteReq) returns (Router);
+}
+message UrgentChangeReq {
+    // @gotags: validate:"required"
+    string id = 1;
+    bool urgent_call = 2;
+}
+message UpdateRouteReq {
+    // @gotags: validate:"required"
+    string id = 1;
+    // @gotags: validate:"required"
+    Spec spec = 2;
 }
 
 message DeleteRouteReq {

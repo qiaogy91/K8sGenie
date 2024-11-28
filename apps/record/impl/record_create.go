@@ -147,7 +147,6 @@ func (i *Impl) CreateLineRecord(ctx context.Context, req *record.CreateLineRecor
 	}
 
 	// 删除 line_record 表中当月数据
-	fmt.Printf("@@@@@@ 将要删除当月数据 %s \n", month)
 	if err := i.db.WithContext(ctx).Where("month = ?", month).Delete(&record.LineRecord{}).Error; err != nil {
 		return err
 	}

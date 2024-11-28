@@ -123,3 +123,35 @@ func (i *Impl) QueryRoute(ctx context.Context, req *router.QueryRouteReq) (*rout
 
 	return ins, nil
 }
+
+func (i *Impl) UpdateRoute(ctx context.Context, req *router.UpdateRouteReq) (*router.Router, error) {
+	if err := validator.New().Struct(req); err != nil {
+		return nil, err
+	}
+	// 更新当前用户
+	ins := &router.Router{
+		Spec: req.Spec,
+	}
+	if err := i.db.WithContext(ctx).Model(&router.Router{}).Where("id = ?", req.Id).Updates(ins).Error; err != nil {
+		return nil, err
+	}
+
+	return ins, nil
+}
+
+func (i *Impl) UrgentChange(ctx context.Context, req *router.UrgentChangeReq) (*router.Router, error) {
+	if err := validator.New().Struct(req); err != nil {
+		return nil, err
+	}
+
+	if err := i.db.WithContext(ctx).Model(&router.Router{}).Where("id = ?", req.Id).
+		Update("urgent_call", req.UrgentCall).Error; err != nil {
+		return nil, err
+	}
+
+	ins := &router.Router{}
+	if err := i.db.WithContext(ctx).Model(&router.Router{}).Where("id = ?", req.Id).First(ins).Error; err != nil {
+		return nil, err
+	}
+	return ins, nil
+}

@@ -48,13 +48,13 @@ func TestImpl_HandlerAlert(t *testing.T) {
 				StartsAt: "2024-09-20T07:45:55.632Z",
 				EndsAt:   "2024-08-20T07:45:59.632Z",
 				Labels: map[string]string{
-					"cluster_name": "itcp-k8s-uat",
-					"namespace":    "crc-yourh-dev",
+					"cluster_name": "crc-itcp-prd-02",
+					"namespace":    "asmp-crcprd",
 					"alertname":    "alertname test",
 					"level":        "level test",
 				},
 				Annotations: map[string]string{
-					"description": "test t004",
+					"description": "test t005",
 					"record":      "名称空间级项目告警",
 				},
 			},

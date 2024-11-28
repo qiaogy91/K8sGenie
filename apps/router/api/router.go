@@ -49,3 +49,37 @@ func (h *Handler) DeleteRoute(req *restful.Request, rsp *restful.Response) {
 	}
 	common.SendSuccess(rsp, out)
 }
+
+func (h *Handler) UpdateRoute(r *restful.Request, w *restful.Response) {
+	spec := &router.Spec{}
+	if err := r.ReadEntity(spec); err != nil {
+		common.SendFailed(w, http.StatusBadRequest, err)
+		return
+	}
+	req := &router.UpdateRouteReq{
+		Id:   r.PathParameter("id"),
+		Spec: spec,
+	}
+
+	ins, err := h.svc.UpdateRoute(r.Request.Context(), req)
+	if err != nil {
+		common.SendFailed(w, http.StatusInternalServerError, err)
+		return
+	}
+	common.SendSuccess(w, ins)
+}
+
+func (h *Handler) UrgentChange(r *restful.Request, w *restful.Response) {
+	req := &router.UrgentChangeReq{}
+	if err := r.ReadEntity(req); err != nil {
+		common.SendFailed(w, http.StatusBadRequest, err)
+		return
+	}
+
+	ins, err := h.svc.UrgentChange(r.Request.Context(), req)
+	if err != nil {
+		common.SendFailed(w, http.StatusInternalServerError, err)
+		return
+	}
+	common.SendSuccess(w, ins)
+}

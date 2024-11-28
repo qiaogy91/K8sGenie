@@ -50,6 +50,22 @@ func (h *Handler) RegistryRoute(p string) {
 		Metadata("action", "delete").
 		Doc("删除告警路由"))
 
+	ws.Route(ws.PUT("/{id}").To(h.UpdateRoute).
+		Metadata("auth", true).
+		Metadata("perm", true).
+		Metadata("audit", true).
+		Metadata("resource", router.AppName).
+		Metadata("action", "update").
+		Doc("更新告警路由"))
+
+	ws.Route(ws.POST("/UrgentChange").To(h.UrgentChange).
+		Metadata("auth", true).
+		Metadata("perm", true).
+		Metadata("audit", true).
+		Metadata("resource", router.AppName).
+		Metadata("action", "update").
+		Doc("转换加急状态"))
+
 	restful.Add(ws)
 }
 

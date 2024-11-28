@@ -87,3 +87,38 @@ func TestImpl_QueryRoute(t *testing.T) {
 	}
 	t.Logf("%+v", ins)
 }
+
+func TestImpl_UpdateRoute(t *testing.T) {
+	req := &router.UpdateRouteReq{
+		Id: "2",
+		Spec: &router.Spec{
+			Identity:     "p3",
+			WebhookUrl:   "http://qiaogy.example.com",
+			WebhookToken: "token2",
+			UrgentCall:   true,
+			Users: []*router.Users{
+				{Username: "qiaogy2", Phone: "18192106883"},
+				{Username: "liangchuanj", Phone: "15302743009"},
+			},
+		},
+	}
+
+	ins, err := c.UpdateRoute(ctx, req)
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Logf("%+v", ins)
+}
+
+func TestImpl_UrgentChange(t *testing.T) {
+	req := &router.UrgentChangeReq{
+		Id:         "2",
+		UrgentCall: true,
+	}
+
+	ins, err := c.UrgentChange(ctx, req)
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Logf("%+v", ins)
+}
