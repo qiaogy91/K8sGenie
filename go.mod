@@ -9,9 +9,11 @@ require (
 	github.com/emicklei/go-restful/v3 v3.12.1
 	github.com/go-playground/validator v9.31.0+incompatible
 	github.com/gorilla/websocket v1.5.3
+	github.com/larksuite/oapi-sdk-go/v3 v3.3.7
 	github.com/rancher/norman v0.0.0-20240708202514-a0127673d1b9
 	github.com/rancher/types v0.0.0-20220328215343-4370ff10ecd5
 	github.com/robfig/cron/v3 v3.0.1
+	github.com/rs/xid v1.5.0
 	github.com/rs/zerolog v1.33.0
 	github.com/spf13/cobra v1.8.1
 	google.golang.org/grpc v1.65.0
@@ -46,7 +48,6 @@ require (
 	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
-	github.com/larksuite/oapi-sdk-go/v3 v3.3.7 // indirect
 	github.com/leodido/go-urn v1.4.0 // indirect
 	github.com/mailru/easyjson v0.7.7 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
@@ -56,7 +57,6 @@ require (
 	github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/rancher/wrangler/v3 v3.0.0 // indirect
-	github.com/rs/xid v1.5.0 // indirect
 	github.com/sirupsen/logrus v1.9.3 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
 	golang.org/x/net v0.27.0 // indirect

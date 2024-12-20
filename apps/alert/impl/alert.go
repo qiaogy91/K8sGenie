@@ -82,8 +82,11 @@ func (i *Impl) HandlerAlert(ctx context.Context, req *alert.HandlerAlertReq) (*a
 		rsp.Rsp = append(rsp.Rsp, res)
 
 		// ******************** 电话加急告警 ****************************
+		if alerts.Status == "resolved" {
+			continue // 恢复的告警只发送润工作，不要打电话
+		}
 		if !route.Spec.UrgentCall {
-			continue
+			continue // 未开启加急，也不要打电话
 		}
 		for _, usr := range route.Spec.Users {
 			urgentReq := &alert.UrgentAlertCallRequest{Users: usr, Alert: alerts}

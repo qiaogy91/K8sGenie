@@ -2,11 +2,13 @@ package impl
 
 import (
 	"context"
+	"fmt"
 	"gitee.com/qiaogy91/K8sGenie/apps/k8s"
 	"gitee.com/qiaogy91/K8sGenie/apps/rancher"
 	"gitee.com/qiaogy91/K8sGenie/apps/router"
 	"github.com/go-playground/validator"
 	_ "github.com/go-playground/validator"
+	"strconv"
 )
 
 func (i *Impl) CreateTable(ctx context.Context, empty *router.Empty) (*router.Empty, error) {
@@ -129,10 +131,20 @@ func (i *Impl) UpdateRoute(ctx context.Context, req *router.UpdateRouteReq) (*ro
 		return nil, err
 	}
 	// 更新当前用户
+	id, err := strconv.ParseInt(req.Id, 10, 64)
+	if err != nil {
+		return nil, err
+	}
+
 	ins := &router.Router{
+		Meta: &router.Meta{
+			Id: id,
+		},
 		Spec: req.Spec,
 	}
-	if err := i.db.WithContext(ctx).Model(&router.Router{}).Where("id = ?", req.Id).Updates(ins).Error; err != nil {
+	fmt.Printf("@@@@ %+v\n", req.Spec)
+
+	if err := i.db.WithContext(ctx).Model(&router.Router{}).Where("id = ?", req.Id).Select("*").Updates(ins).Error; err != nil {
 		return nil, err
 	}
 

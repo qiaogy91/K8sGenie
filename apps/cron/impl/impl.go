@@ -29,8 +29,7 @@ func (i *Impl) Init() error {
 	i.cron = cron.New(cron.WithSeconds(), cron.WithLocation(loc))
 
 	i.cron.Start()
-	//0 0 3 */3 * *"
-	if _, err := i.cron.AddJob("0 10 11 * * *", i); err != nil {
+	if _, err := i.cron.AddJob("0 10 03 * * *", i); err != nil {
 		panic(err)
 	}
 	//i.Run()
