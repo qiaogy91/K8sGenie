@@ -29,9 +29,7 @@ func (h *Handler) QueryRoute(req *restful.Request, rsp *restful.Response) {
 		common.SendFailed(rsp, http.StatusInternalServerError, err)
 		return
 	}
-
 	ins := &router.QueryRouteReq{Type: router.QUERY_TYPE(t), Keyword: req.QueryParameter("keyword")}
-
 	out, err := h.svc.QueryRoute(req.Request.Context(), ins)
 	if err != nil {
 		common.SendFailed(rsp, http.StatusInternalServerError, err)

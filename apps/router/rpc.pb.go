@@ -113,6 +113,54 @@ func (*Empty) Descriptor() ([]byte, []int) {
 	return file_apps_router_pb_rpc_proto_rawDescGZIP(), []int{0}
 }
 
+type DescRouteReq struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	// @gotags: validate:"required"
+	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty" validate:"required"`
+}
+
+func (x *DescRouteReq) Reset() {
+	*x = DescRouteReq{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_apps_router_pb_rpc_proto_msgTypes[1]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *DescRouteReq) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DescRouteReq) ProtoMessage() {}
+
+func (x *DescRouteReq) ProtoReflect() protoreflect.Message {
+	mi := &file_apps_router_pb_rpc_proto_msgTypes[1]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DescRouteReq.ProtoReflect.Descriptor instead.
+func (*DescRouteReq) Descriptor() ([]byte, []int) {
+	return file_apps_router_pb_rpc_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *DescRouteReq) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
 type UrgentChangeReq struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
@@ -126,7 +174,7 @@ type UrgentChangeReq struct {
 func (x *UrgentChangeReq) Reset() {
 	*x = UrgentChangeReq{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_apps_router_pb_rpc_proto_msgTypes[1]
+		mi := &file_apps_router_pb_rpc_proto_msgTypes[2]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -139,7 +187,7 @@ func (x *UrgentChangeReq) String() string {
 func (*UrgentChangeReq) ProtoMessage() {}
 
 func (x *UrgentChangeReq) ProtoReflect() protoreflect.Message {
-	mi := &file_apps_router_pb_rpc_proto_msgTypes[1]
+	mi := &file_apps_router_pb_rpc_proto_msgTypes[2]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -152,7 +200,7 @@ func (x *UrgentChangeReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UrgentChangeReq.ProtoReflect.Descriptor instead.
 func (*UrgentChangeReq) Descriptor() ([]byte, []int) {
-	return file_apps_router_pb_rpc_proto_rawDescGZIP(), []int{1}
+	return file_apps_router_pb_rpc_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *UrgentChangeReq) GetId() string {
@@ -183,7 +231,7 @@ type UpdateRouteReq struct {
 func (x *UpdateRouteReq) Reset() {
 	*x = UpdateRouteReq{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_apps_router_pb_rpc_proto_msgTypes[2]
+		mi := &file_apps_router_pb_rpc_proto_msgTypes[3]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -196,7 +244,7 @@ func (x *UpdateRouteReq) String() string {
 func (*UpdateRouteReq) ProtoMessage() {}
 
 func (x *UpdateRouteReq) ProtoReflect() protoreflect.Message {
-	mi := &file_apps_router_pb_rpc_proto_msgTypes[2]
+	mi := &file_apps_router_pb_rpc_proto_msgTypes[3]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -209,7 +257,7 @@ func (x *UpdateRouteReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateRouteReq.ProtoReflect.Descriptor instead.
 func (*UpdateRouteReq) Descriptor() ([]byte, []int) {
-	return file_apps_router_pb_rpc_proto_rawDescGZIP(), []int{2}
+	return file_apps_router_pb_rpc_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *UpdateRouteReq) GetId() string {
@@ -238,7 +286,7 @@ type DeleteRouteReq struct {
 func (x *DeleteRouteReq) Reset() {
 	*x = DeleteRouteReq{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_apps_router_pb_rpc_proto_msgTypes[3]
+		mi := &file_apps_router_pb_rpc_proto_msgTypes[4]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -251,7 +299,7 @@ func (x *DeleteRouteReq) String() string {
 func (*DeleteRouteReq) ProtoMessage() {}
 
 func (x *DeleteRouteReq) ProtoReflect() protoreflect.Message {
-	mi := &file_apps_router_pb_rpc_proto_msgTypes[3]
+	mi := &file_apps_router_pb_rpc_proto_msgTypes[4]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -264,7 +312,7 @@ func (x *DeleteRouteReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteRouteReq.ProtoReflect.Descriptor instead.
 func (*DeleteRouteReq) Descriptor() ([]byte, []int) {
-	return file_apps_router_pb_rpc_proto_rawDescGZIP(), []int{3}
+	return file_apps_router_pb_rpc_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *DeleteRouteReq) GetId() string {
@@ -286,7 +334,7 @@ type AlertRouteReq struct {
 func (x *AlertRouteReq) Reset() {
 	*x = AlertRouteReq{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_apps_router_pb_rpc_proto_msgTypes[4]
+		mi := &file_apps_router_pb_rpc_proto_msgTypes[5]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -299,7 +347,7 @@ func (x *AlertRouteReq) String() string {
 func (*AlertRouteReq) ProtoMessage() {}
 
 func (x *AlertRouteReq) ProtoReflect() protoreflect.Message {
-	mi := &file_apps_router_pb_rpc_proto_msgTypes[4]
+	mi := &file_apps_router_pb_rpc_proto_msgTypes[5]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -312,7 +360,7 @@ func (x *AlertRouteReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AlertRouteReq.ProtoReflect.Descriptor instead.
 func (*AlertRouteReq) Descriptor() ([]byte, []int) {
-	return file_apps_router_pb_rpc_proto_rawDescGZIP(), []int{4}
+	return file_apps_router_pb_rpc_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *AlertRouteReq) GetClusterName() string {
@@ -343,7 +391,7 @@ type QueryRouteReq struct {
 func (x *QueryRouteReq) Reset() {
 	*x = QueryRouteReq{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_apps_router_pb_rpc_proto_msgTypes[5]
+		mi := &file_apps_router_pb_rpc_proto_msgTypes[6]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -356,7 +404,7 @@ func (x *QueryRouteReq) String() string {
 func (*QueryRouteReq) ProtoMessage() {}
 
 func (x *QueryRouteReq) ProtoReflect() protoreflect.Message {
-	mi := &file_apps_router_pb_rpc_proto_msgTypes[5]
+	mi := &file_apps_router_pb_rpc_proto_msgTypes[6]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -369,7 +417,7 @@ func (x *QueryRouteReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use QueryRouteReq.ProtoReflect.Descriptor instead.
 func (*QueryRouteReq) Descriptor() ([]byte, []int) {
-	return file_apps_router_pb_rpc_proto_rawDescGZIP(), []int{5}
+	return file_apps_router_pb_rpc_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *QueryRouteReq) GetType() QUERY_TYPE {
@@ -398,7 +446,7 @@ type RouterSet struct {
 func (x *RouterSet) Reset() {
 	*x = RouterSet{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_apps_router_pb_rpc_proto_msgTypes[6]
+		mi := &file_apps_router_pb_rpc_proto_msgTypes[7]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -411,7 +459,7 @@ func (x *RouterSet) String() string {
 func (*RouterSet) ProtoMessage() {}
 
 func (x *RouterSet) ProtoReflect() protoreflect.Message {
-	mi := &file_apps_router_pb_rpc_proto_msgTypes[6]
+	mi := &file_apps_router_pb_rpc_proto_msgTypes[7]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -424,7 +472,7 @@ func (x *RouterSet) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RouterSet.ProtoReflect.Descriptor instead.
 func (*RouterSet) Descriptor() ([]byte, []int) {
-	return file_apps_router_pb_rpc_proto_rawDescGZIP(), []int{6}
+	return file_apps_router_pb_rpc_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *RouterSet) GetCount() int64 {
@@ -449,6 +497,8 @@ var file_apps_router_pb_rpc_proto_rawDesc = []byte{
 	0x65, 0x6e, 0x69, 0x65, 0x2e, 0x72, 0x6f, 0x75, 0x74, 0x65, 0x72, 0x1a, 0x1a, 0x61, 0x70, 0x70,
 	0x73, 0x2f, 0x72, 0x6f, 0x75, 0x74, 0x65, 0x72, 0x2f, 0x70, 0x62, 0x2f, 0x6d, 0x6f, 0x64, 0x65,
 	0x6c, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x22, 0x07, 0x0a, 0x05, 0x45, 0x6d, 0x70, 0x74, 0x79,
+	0x22, 0x1e, 0x0a, 0x0c, 0x44, 0x65, 0x73, 0x63, 0x52, 0x6f, 0x75, 0x74, 0x65, 0x52, 0x65, 0x71,
+	0x12, 0x0e, 0x0a, 0x02, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x02, 0x69, 0x64,
 	0x22, 0x42, 0x0a, 0x0f, 0x55, 0x72, 0x67, 0x65, 0x6e, 0x74, 0x43, 0x68, 0x61, 0x6e, 0x67, 0x65,
 	0x52, 0x65, 0x71, 0x12, 0x0e, 0x0a, 0x02, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52,
 	0x02, 0x69, 0x64, 0x12, 0x1f, 0x0a, 0x0b, 0x75, 0x72, 0x67, 0x65, 0x6e, 0x74, 0x5f, 0x63, 0x61,
@@ -486,7 +536,7 @@ var file_apps_router_pb_rpc_proto_rawDesc = []byte{
 	0x55, 0x45, 0x52, 0x59, 0x5f, 0x54, 0x59, 0x50, 0x45, 0x5f, 0x42, 0x59, 0x5f, 0x50, 0x52, 0x4f,
 	0x4a, 0x45, 0x43, 0x54, 0x5f, 0x4c, 0x49, 0x4e, 0x45, 0x10, 0x03, 0x12, 0x14, 0x0a, 0x10, 0x51,
 	0x55, 0x45, 0x52, 0x59, 0x5f, 0x54, 0x59, 0x50, 0x45, 0x5f, 0x42, 0x59, 0x5f, 0x49, 0x44, 0x10,
-	0x04, 0x32, 0xf1, 0x03, 0x0a, 0x03, 0x52, 0x70, 0x63, 0x12, 0x3d, 0x0a, 0x0b, 0x43, 0x72, 0x65,
+	0x04, 0x32, 0xb6, 0x04, 0x0a, 0x03, 0x52, 0x70, 0x63, 0x12, 0x3d, 0x0a, 0x0b, 0x43, 0x72, 0x65,
 	0x61, 0x74, 0x65, 0x54, 0x61, 0x62, 0x6c, 0x65, 0x12, 0x16, 0x2e, 0x4b, 0x38, 0x73, 0x47, 0x65,
 	0x6e, 0x69, 0x65, 0x2e, 0x72, 0x6f, 0x75, 0x74, 0x65, 0x72, 0x2e, 0x45, 0x6d, 0x70, 0x74, 0x79,
 	0x1a, 0x16, 0x2e, 0x4b, 0x38, 0x73, 0x47, 0x65, 0x6e, 0x69, 0x65, 0x2e, 0x72, 0x6f, 0x75, 0x74,
@@ -508,19 +558,23 @@ var file_apps_router_pb_rpc_proto_rawDesc = []byte{
 	0x65, 0x6e, 0x69, 0x65, 0x2e, 0x72, 0x6f, 0x75, 0x74, 0x65, 0x72, 0x2e, 0x55, 0x70, 0x64, 0x61,
 	0x74, 0x65, 0x52, 0x6f, 0x75, 0x74, 0x65, 0x52, 0x65, 0x71, 0x1a, 0x17, 0x2e, 0x4b, 0x38, 0x73,
 	0x47, 0x65, 0x6e, 0x69, 0x65, 0x2e, 0x72, 0x6f, 0x75, 0x74, 0x65, 0x72, 0x2e, 0x52, 0x6f, 0x75,
-	0x74, 0x65, 0x72, 0x12, 0x49, 0x0a, 0x0c, 0x55, 0x72, 0x67, 0x65, 0x6e, 0x74, 0x43, 0x68, 0x61,
-	0x6e, 0x67, 0x65, 0x12, 0x20, 0x2e, 0x4b, 0x38, 0x73, 0x47, 0x65, 0x6e, 0x69, 0x65, 0x2e, 0x72,
-	0x6f, 0x75, 0x74, 0x65, 0x72, 0x2e, 0x55, 0x72, 0x67, 0x65, 0x6e, 0x74, 0x43, 0x68, 0x61, 0x6e,
-	0x67, 0x65, 0x52, 0x65, 0x71, 0x1a, 0x17, 0x2e, 0x4b, 0x38, 0x73, 0x47, 0x65, 0x6e, 0x69, 0x65,
-	0x2e, 0x72, 0x6f, 0x75, 0x74, 0x65, 0x72, 0x2e, 0x52, 0x6f, 0x75, 0x74, 0x65, 0x72, 0x12, 0x45,
-	0x0a, 0x0a, 0x41, 0x6c, 0x65, 0x72, 0x74, 0x52, 0x6f, 0x75, 0x74, 0x65, 0x12, 0x1e, 0x2e, 0x4b,
-	0x38, 0x73, 0x47, 0x65, 0x6e, 0x69, 0x65, 0x2e, 0x72, 0x6f, 0x75, 0x74, 0x65, 0x72, 0x2e, 0x41,
-	0x6c, 0x65, 0x72, 0x74, 0x52, 0x6f, 0x75, 0x74, 0x65, 0x52, 0x65, 0x71, 0x1a, 0x17, 0x2e, 0x4b,
-	0x38, 0x73, 0x47, 0x65, 0x6e, 0x69, 0x65, 0x2e, 0x72, 0x6f, 0x75, 0x74, 0x65, 0x72, 0x2e, 0x52,
-	0x6f, 0x75, 0x74, 0x65, 0x72, 0x42, 0x29, 0x5a, 0x27, 0x67, 0x69, 0x74, 0x65, 0x65, 0x2e, 0x63,
-	0x6f, 0x6d, 0x2f, 0x71, 0x69, 0x61, 0x6f, 0x67, 0x79, 0x39, 0x31, 0x2f, 0x4b, 0x38, 0x73, 0x47,
-	0x65, 0x6e, 0x69, 0x65, 0x2f, 0x61, 0x70, 0x70, 0x73, 0x2f, 0x72, 0x6f, 0x75, 0x74, 0x65, 0x72,
-	0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x74, 0x65, 0x72, 0x12, 0x43, 0x0a, 0x09, 0x44, 0x65, 0x73, 0x63, 0x52, 0x6f, 0x75, 0x74, 0x65,
+	0x12, 0x1d, 0x2e, 0x4b, 0x38, 0x73, 0x47, 0x65, 0x6e, 0x69, 0x65, 0x2e, 0x72, 0x6f, 0x75, 0x74,
+	0x65, 0x72, 0x2e, 0x44, 0x65, 0x73, 0x63, 0x52, 0x6f, 0x75, 0x74, 0x65, 0x52, 0x65, 0x71, 0x1a,
+	0x17, 0x2e, 0x4b, 0x38, 0x73, 0x47, 0x65, 0x6e, 0x69, 0x65, 0x2e, 0x72, 0x6f, 0x75, 0x74, 0x65,
+	0x72, 0x2e, 0x52, 0x6f, 0x75, 0x74, 0x65, 0x72, 0x12, 0x49, 0x0a, 0x0c, 0x55, 0x72, 0x67, 0x65,
+	0x6e, 0x74, 0x43, 0x68, 0x61, 0x6e, 0x67, 0x65, 0x12, 0x20, 0x2e, 0x4b, 0x38, 0x73, 0x47, 0x65,
+	0x6e, 0x69, 0x65, 0x2e, 0x72, 0x6f, 0x75, 0x74, 0x65, 0x72, 0x2e, 0x55, 0x72, 0x67, 0x65, 0x6e,
+	0x74, 0x43, 0x68, 0x61, 0x6e, 0x67, 0x65, 0x52, 0x65, 0x71, 0x1a, 0x17, 0x2e, 0x4b, 0x38, 0x73,
+	0x47, 0x65, 0x6e, 0x69, 0x65, 0x2e, 0x72, 0x6f, 0x75, 0x74, 0x65, 0x72, 0x2e, 0x52, 0x6f, 0x75,
+	0x74, 0x65, 0x72, 0x12, 0x45, 0x0a, 0x0a, 0x41, 0x6c, 0x65, 0x72, 0x74, 0x52, 0x6f, 0x75, 0x74,
+	0x65, 0x12, 0x1e, 0x2e, 0x4b, 0x38, 0x73, 0x47, 0x65, 0x6e, 0x69, 0x65, 0x2e, 0x72, 0x6f, 0x75,
+	0x74, 0x65, 0x72, 0x2e, 0x41, 0x6c, 0x65, 0x72, 0x74, 0x52, 0x6f, 0x75, 0x74, 0x65, 0x52, 0x65,
+	0x71, 0x1a, 0x17, 0x2e, 0x4b, 0x38, 0x73, 0x47, 0x65, 0x6e, 0x69, 0x65, 0x2e, 0x72, 0x6f, 0x75,
+	0x74, 0x65, 0x72, 0x2e, 0x52, 0x6f, 0x75, 0x74, 0x65, 0x72, 0x42, 0x29, 0x5a, 0x27, 0x67, 0x69,
+	0x74, 0x65, 0x65, 0x2e, 0x63, 0x6f, 0x6d, 0x2f, 0x71, 0x69, 0x61, 0x6f, 0x67, 0x79, 0x39, 0x31,
+	0x2f, 0x4b, 0x38, 0x73, 0x47, 0x65, 0x6e, 0x69, 0x65, 0x2f, 0x61, 0x70, 0x70, 0x73, 0x2f, 0x72,
+	0x6f, 0x75, 0x74, 0x65, 0x72, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
@@ -536,39 +590,42 @@ func file_apps_router_pb_rpc_proto_rawDescGZIP() []byte {
 }
 
 var file_apps_router_pb_rpc_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_apps_router_pb_rpc_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
+var file_apps_router_pb_rpc_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
 var file_apps_router_pb_rpc_proto_goTypes = []any{
 	(QUERY_TYPE)(0),         // 0: K8sGenie.router.QUERY_TYPE
 	(*Empty)(nil),           // 1: K8sGenie.router.Empty
-	(*UrgentChangeReq)(nil), // 2: K8sGenie.router.UrgentChangeReq
-	(*UpdateRouteReq)(nil),  // 3: K8sGenie.router.UpdateRouteReq
-	(*DeleteRouteReq)(nil),  // 4: K8sGenie.router.DeleteRouteReq
-	(*AlertRouteReq)(nil),   // 5: K8sGenie.router.AlertRouteReq
-	(*QueryRouteReq)(nil),   // 6: K8sGenie.router.QueryRouteReq
-	(*RouterSet)(nil),       // 7: K8sGenie.router.RouterSet
-	(*Spec)(nil),            // 8: K8sGenie.router.Spec
-	(*Router)(nil),          // 9: K8sGenie.router.Router
+	(*DescRouteReq)(nil),    // 2: K8sGenie.router.DescRouteReq
+	(*UrgentChangeReq)(nil), // 3: K8sGenie.router.UrgentChangeReq
+	(*UpdateRouteReq)(nil),  // 4: K8sGenie.router.UpdateRouteReq
+	(*DeleteRouteReq)(nil),  // 5: K8sGenie.router.DeleteRouteReq
+	(*AlertRouteReq)(nil),   // 6: K8sGenie.router.AlertRouteReq
+	(*QueryRouteReq)(nil),   // 7: K8sGenie.router.QueryRouteReq
+	(*RouterSet)(nil),       // 8: K8sGenie.router.RouterSet
+	(*Spec)(nil),            // 9: K8sGenie.router.Spec
+	(*Router)(nil),          // 10: K8sGenie.router.Router
 }
 var file_apps_router_pb_rpc_proto_depIdxs = []int32{
-	8,  // 0: K8sGenie.router.UpdateRouteReq.spec:type_name -> K8sGenie.router.Spec
+	9,  // 0: K8sGenie.router.UpdateRouteReq.spec:type_name -> K8sGenie.router.Spec
 	0,  // 1: K8sGenie.router.QueryRouteReq.type:type_name -> K8sGenie.router.QUERY_TYPE
-	9,  // 2: K8sGenie.router.RouterSet.items:type_name -> K8sGenie.router.Router
+	10, // 2: K8sGenie.router.RouterSet.items:type_name -> K8sGenie.router.Router
 	1,  // 3: K8sGenie.router.Rpc.CreateTable:input_type -> K8sGenie.router.Empty
-	8,  // 4: K8sGenie.router.Rpc.CreateRoute:input_type -> K8sGenie.router.Spec
-	4,  // 5: K8sGenie.router.Rpc.DeleteRoute:input_type -> K8sGenie.router.DeleteRouteReq
-	6,  // 6: K8sGenie.router.Rpc.QueryRoute:input_type -> K8sGenie.router.QueryRouteReq
-	3,  // 7: K8sGenie.router.Rpc.UpdateRoute:input_type -> K8sGenie.router.UpdateRouteReq
-	2,  // 8: K8sGenie.router.Rpc.UrgentChange:input_type -> K8sGenie.router.UrgentChangeReq
-	5,  // 9: K8sGenie.router.Rpc.AlertRoute:input_type -> K8sGenie.router.AlertRouteReq
-	1,  // 10: K8sGenie.router.Rpc.CreateTable:output_type -> K8sGenie.router.Empty
-	9,  // 11: K8sGenie.router.Rpc.CreateRoute:output_type -> K8sGenie.router.Router
-	9,  // 12: K8sGenie.router.Rpc.DeleteRoute:output_type -> K8sGenie.router.Router
-	7,  // 13: K8sGenie.router.Rpc.QueryRoute:output_type -> K8sGenie.router.RouterSet
-	9,  // 14: K8sGenie.router.Rpc.UpdateRoute:output_type -> K8sGenie.router.Router
-	9,  // 15: K8sGenie.router.Rpc.UrgentChange:output_type -> K8sGenie.router.Router
-	9,  // 16: K8sGenie.router.Rpc.AlertRoute:output_type -> K8sGenie.router.Router
-	10, // [10:17] is the sub-list for method output_type
-	3,  // [3:10] is the sub-list for method input_type
+	9,  // 4: K8sGenie.router.Rpc.CreateRoute:input_type -> K8sGenie.router.Spec
+	5,  // 5: K8sGenie.router.Rpc.DeleteRoute:input_type -> K8sGenie.router.DeleteRouteReq
+	7,  // 6: K8sGenie.router.Rpc.QueryRoute:input_type -> K8sGenie.router.QueryRouteReq
+	4,  // 7: K8sGenie.router.Rpc.UpdateRoute:input_type -> K8sGenie.router.UpdateRouteReq
+	2,  // 8: K8sGenie.router.Rpc.DescRoute:input_type -> K8sGenie.router.DescRouteReq
+	3,  // 9: K8sGenie.router.Rpc.UrgentChange:input_type -> K8sGenie.router.UrgentChangeReq
+	6,  // 10: K8sGenie.router.Rpc.AlertRoute:input_type -> K8sGenie.router.AlertRouteReq
+	1,  // 11: K8sGenie.router.Rpc.CreateTable:output_type -> K8sGenie.router.Empty
+	10, // 12: K8sGenie.router.Rpc.CreateRoute:output_type -> K8sGenie.router.Router
+	10, // 13: K8sGenie.router.Rpc.DeleteRoute:output_type -> K8sGenie.router.Router
+	8,  // 14: K8sGenie.router.Rpc.QueryRoute:output_type -> K8sGenie.router.RouterSet
+	10, // 15: K8sGenie.router.Rpc.UpdateRoute:output_type -> K8sGenie.router.Router
+	10, // 16: K8sGenie.router.Rpc.DescRoute:output_type -> K8sGenie.router.Router
+	10, // 17: K8sGenie.router.Rpc.UrgentChange:output_type -> K8sGenie.router.Router
+	10, // 18: K8sGenie.router.Rpc.AlertRoute:output_type -> K8sGenie.router.Router
+	11, // [11:19] is the sub-list for method output_type
+	3,  // [3:11] is the sub-list for method input_type
 	3,  // [3:3] is the sub-list for extension type_name
 	3,  // [3:3] is the sub-list for extension extendee
 	0,  // [0:3] is the sub-list for field type_name
@@ -594,7 +651,7 @@ func file_apps_router_pb_rpc_proto_init() {
 			}
 		}
 		file_apps_router_pb_rpc_proto_msgTypes[1].Exporter = func(v any, i int) any {
-			switch v := v.(*UrgentChangeReq); i {
+			switch v := v.(*DescRouteReq); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -606,7 +663,7 @@ func file_apps_router_pb_rpc_proto_init() {
 			}
 		}
 		file_apps_router_pb_rpc_proto_msgTypes[2].Exporter = func(v any, i int) any {
-			switch v := v.(*UpdateRouteReq); i {
+			switch v := v.(*UrgentChangeReq); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -618,7 +675,7 @@ func file_apps_router_pb_rpc_proto_init() {
 			}
 		}
 		file_apps_router_pb_rpc_proto_msgTypes[3].Exporter = func(v any, i int) any {
-			switch v := v.(*DeleteRouteReq); i {
+			switch v := v.(*UpdateRouteReq); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -630,7 +687,7 @@ func file_apps_router_pb_rpc_proto_init() {
 			}
 		}
 		file_apps_router_pb_rpc_proto_msgTypes[4].Exporter = func(v any, i int) any {
-			switch v := v.(*AlertRouteReq); i {
+			switch v := v.(*DeleteRouteReq); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -642,7 +699,7 @@ func file_apps_router_pb_rpc_proto_init() {
 			}
 		}
 		file_apps_router_pb_rpc_proto_msgTypes[5].Exporter = func(v any, i int) any {
-			switch v := v.(*QueryRouteReq); i {
+			switch v := v.(*AlertRouteReq); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -654,6 +711,18 @@ func file_apps_router_pb_rpc_proto_init() {
 			}
 		}
 		file_apps_router_pb_rpc_proto_msgTypes[6].Exporter = func(v any, i int) any {
+			switch v := v.(*QueryRouteReq); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_apps_router_pb_rpc_proto_msgTypes[7].Exporter = func(v any, i int) any {
 			switch v := v.(*RouterSet); i {
 			case 0:
 				return &v.state
@@ -672,7 +741,7 @@ func file_apps_router_pb_rpc_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_apps_router_pb_rpc_proto_rawDesc,
 			NumEnums:      1,
-			NumMessages:   7,
+			NumMessages:   8,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

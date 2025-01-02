@@ -54,7 +54,7 @@ func TestImpl_CreateRoute(t *testing.T) {
 }
 
 func TestImpl_DeleteRoute(t *testing.T) {
-	ins, err := c.DeleteRoute(ctx, &router.DeleteRouteReq{Id: "3"})
+	ins, err := c.DeleteRoute(ctx, &router.DeleteRouteReq{Id: "10"})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -121,4 +121,14 @@ func TestImpl_UrgentChange(t *testing.T) {
 		t.Fatal(err)
 	}
 	t.Logf("%+v", ins)
+}
+
+func TestImpl_DescRoute(t *testing.T) {
+	req := &router.DescRouteReq{Id: "5"}
+	ins, err := c.DescRoute(ctx, req)
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Logf("%+v", ins)
+
 }

@@ -17,10 +17,18 @@ service Rpc {
     rpc QueryRoute (QueryRouteReq) returns (RouterSet);
     rpc UpdateRoute(UpdateRouteReq) returns (Router);
 
+    rpc DescRoute(DescRouteReq)returns (Router);
+
     rpc UrgentChange(UrgentChangeReq)returns (Router);
     // 告警路由
     rpc AlertRoute (AlertRouteReq) returns (Router);
 }
+
+message DescRouteReq {
+    // @gotags: validate:"required"
+    string id = 1;
+}
+
 message UrgentChangeReq {
     // @gotags: validate:"required"
     string id = 1;

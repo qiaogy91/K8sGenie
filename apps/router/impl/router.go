@@ -2,13 +2,11 @@ package impl
 
 import (
 	"context"
-	"fmt"
 	"gitee.com/qiaogy91/K8sGenie/apps/k8s"
 	"gitee.com/qiaogy91/K8sGenie/apps/rancher"
 	"gitee.com/qiaogy91/K8sGenie/apps/router"
 	"github.com/go-playground/validator"
 	_ "github.com/go-playground/validator"
-	"strconv"
 )
 
 func (i *Impl) CreateTable(ctx context.Context, empty *router.Empty) (*router.Empty, error) {
@@ -91,12 +89,18 @@ func (i *Impl) QueryRoute(ctx context.Context, req *router.QueryRouteReq) (*rout
 	ins := &router.RouterSet{}
 
 	switch req.Type {
+	case router.QUERY_TYPE_QUERY_TYPE_ALL:
+		sql = sql.Where("1=1")
+
 	case router.QUERY_TYPE_QUERY_TYPE_BY_CLUSTER_CODE:
-
-		sql = sql.Where("identity = ?", req.Keyword)
-
-	case router.QUERY_TYPE_QUERY_TYPE_BY_ID:
-		sql = sql.Where("id = ?", req.Keyword)
+		ps, err := i.rc.QueryProject(ctx, &rancher.QueryProjectReq{
+			QueryType: rancher.QUERY_TYPE_QUERY_TYPE_CLUSTER_CODE,
+			KeyWord:   req.Keyword,
+		})
+		if err != nil {
+			return nil, err
+		}
+		sql = sql.Where("identity in ?", ps.ProjectIds())
 
 	case router.QUERY_TYPE_QUERY_TYPE_BY_PROJECT_LINE:
 		// 查询这个产线下的所有 project
@@ -106,8 +110,9 @@ func (i *Impl) QueryRoute(ctx context.Context, req *router.QueryRouteReq) (*rout
 		}
 
 		sql = sql.Where("identity in ?", ps.ProjectIds())
-	case router.QUERY_TYPE_QUERY_TYPE_ALL:
-		sql = sql.Where("1=1")
+	case router.QUERY_TYPE_QUERY_TYPE_BY_ID:
+		sql = sql.Where("identity = ?", req.Keyword)
+
 	}
 
 	if err := sql.Find(&ins.Items).Error; err != nil {
@@ -130,23 +135,14 @@ func (i *Impl) UpdateRoute(ctx context.Context, req *router.UpdateRouteReq) (*ro
 	if err := validator.New().Struct(req); err != nil {
 		return nil, err
 	}
-	// 更新当前用户
-	id, err := strconv.ParseInt(req.Id, 10, 64)
+
+	ins, err := i.DescRoute(ctx, &router.DescRouteReq{Id: req.Id})
 	if err != nil {
 		return nil, err
 	}
 
-	ins := &router.Router{
-		Meta: &router.Meta{
-			Id: id,
-		},
-		Spec: req.Spec,
-	}
-	fmt.Printf("@@@@ %+v\n", req.Spec)
-
-	if err := i.db.WithContext(ctx).Model(&router.Router{}).Where("id = ?", req.Id).Select("*").Updates(ins).Error; err != nil {
-		return nil, err
-	}
+	ins.Spec = req.Spec
+	i.db.Save(ins)
 
 	return ins, nil
 }
@@ -158,6 +154,18 @@ func (i *Impl) UrgentChange(ctx context.Context, req *router.UrgentChangeReq) (*
 
 	if err := i.db.WithContext(ctx).Model(&router.Router{}).Where("id = ?", req.Id).
 		Update("urgent_call", req.UrgentCall).Error; err != nil {
+		return nil, err
+	}
+
+	ins := &router.Router{}
+	if err := i.db.WithContext(ctx).Model(&router.Router{}).Where("id = ?", req.Id).First(ins).Error; err != nil {
+		return nil, err
+	}
+	return ins, nil
+}
+
+func (i *Impl) DescRoute(ctx context.Context, req *router.DescRouteReq) (*router.Router, error) {
+	if err := validator.New().Struct(req); err != nil {
 		return nil, err
 	}
 
